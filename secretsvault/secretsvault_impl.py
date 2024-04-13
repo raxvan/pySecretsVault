@@ -4,17 +4,32 @@ import json
 
 _hidden_dir = ".vault"
 
+def _check_home_folder():
+	# Get the path to the user's home directory
+	home_directory = os.path.expanduser('~')
+	folder = os.path.join(home_directory, _hidden_dir)
+	
+	# Check if the folder exists
+	if os.path.exists(folder) and os.path.isdir(folder):
+		return folder
+	return None
+
+
 def GetVaultDirectory():
-	envloc = os.environ.get("SECRETSVAULT", None)
-	if envloc != None:
-		return envloc
+	folder = os.environ.get("SECRETSVAULT", None)
+	if folder != None:
+		return folder
 
-	start_dir = os.path.abspath(os.getcwd())
+	folder = _check_home_folder()
+	if folder != None:
+		return folder
 
-	current_dir = start_dir
+	folder = os.path.abspath(os.getcwd())
+
+	current_dir = folder
 	while True:
 		vaultpath = os.path.join(current_dir, _hidden_dir)
-		if os.path.isdir(vaultpath):
+		if os.path.exists(vaultpath) and os.path.isdir(vaultpath):
 			return vaultpath
 
 		parent_dir = os.path.dirname(current_dir)
@@ -22,19 +37,19 @@ def GetVaultDirectory():
 			break
 		current_dir = parent_dir
 
-	return os.path.join(start_dir,_hidden_dir)
+	return os.path.join(folder,_hidden_dir)
 
 class Vault():
-	def __init__(self, encoderInstance, vaultPath = None):
+	def __init__(self, encoderInstance, vaultFolder = None):
 		
 		self._vault = None
 		self._dirty = False
 		self._encoder = encoderInstance
 
-		if vaultPath != None:
-			self._vault_path = vaultPath
+		if vaultFolder != None:
+			self._vault_path = vaultFolder
 		else:
-			self._vault_path = os.path.join(GetVaultDirectory(), "vault.json")
+			self._vault_path = os.path.join(GetVaultDirectory(vaultFolder), "vault.json")
 		
 	def _read(self):
 		if(os.path.exits(self._vault_path)):
