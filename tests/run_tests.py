@@ -12,14 +12,14 @@ import secretsvault
 
 print(json.dumps(secretsvault.details(), indent = 4))
 
+opt = secretsvault.CreateOptions()
+enc = secretsvault.CreateRsaEncoder(opt)
 
-enc = secretsvault.CreateFernetEncoder("test-salt")
+vault = secretsvault.CreateFileVault(enc, opt)
 
-vault = secretsvault.Vault(enc)
-
-print(f"VaultPath: {vault.getVaultPath()}")
-vault.open()
-vault.put("test-key", "test-value")
-print(json.dumps(vault.getEncodedVault(), indent=4))
-vault.close()
+#print(f"VaultPath: {vault.getVaultPath()}")
+#vault.open()
+#vault.put("test-key", "test-value")
+#print(json.dumps(vault.getEncodedVault(), indent=4))
+#vault.close()
 
