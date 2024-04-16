@@ -23,7 +23,7 @@ def details():
 	v = {
 		"version" : "0.0.1",
 		"url" : "https://github.com/raxvan/pysecrets-vault",
-		"cryptography-versin" : cryptography.__version__,
+		"cryptography-version" : cryptography.__version__,
 	}
 
 	return v
