@@ -5,14 +5,6 @@ import base64
 
 from .vault_folder import GetVaultDirectory
 
-
-def CreateOptions(**kwargs):
-	vault_folder = GetVaultDirectory(kwargs.get("vaultdir", None))
-
-	return {
-		"vaultdir" : vault_folder
-	}
-
 def CreateRsaEncoder(options):
 	from .rsa_encoder import RsaEncoder
 
@@ -21,12 +13,11 @@ def CreateRsaEncoder(options):
 	return e
 
 def CreateFileVault(encoder, options):
-	from .secretsvault_impl import FileVault
+	from .vault_file_impl import FileVault
 
-	if "vaultdir" not in options:
-		raise Exception("Mising option, vault directory path (vaultdir).")
+	vault_folder = GetVaultDirectory(options.get("vaultdir", None))
 
-	return FileVault(encoder, options)
+	return FileVault(encoder, vault_folder)
 
 def details():
 	import cryptography

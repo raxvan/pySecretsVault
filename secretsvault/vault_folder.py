@@ -39,3 +39,5 @@ def GetVaultDirectory(userPath):
 		current_dir = parent_dir
 
 	return os.path.join(folder,_hidden_dir)
+
+

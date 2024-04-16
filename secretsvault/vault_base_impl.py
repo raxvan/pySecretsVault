@@ -9,17 +9,21 @@ class OpenVault():
 		self._encoder = encoderInstance
 
 	def open(self):
-		pass
+		self._dirty = False
 		
 	def close(self) -> bool:
 		if self._dirty:
 			self._dirty = False
 			return True
 
-		return False
+		return False 
 
-	def isOpen() -> bool:
+	def isOpen(self) -> bool:
 		return self._vault != None
+
+	def _drop(self):
+		self._vault = None
+		self._dirty = False
 
 	def getEncodedVault(self):
 		return { k : self._encoder.encode(k, v) for k, v in self._vault.items()}
@@ -28,7 +32,7 @@ class OpenVault():
 		self._vault[key] = value
 		self._dirty = True
 
-	def get(self, key : str, default : str) -> str:
+	def get(self, key : str, default : str = None) -> str:
 		return self._vault.get(key, default)
 
 	def format(self, s : str) -> str:

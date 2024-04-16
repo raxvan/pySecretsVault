@@ -11,4 +11,4 @@ docker run ^
 	-v %REPODIR%:/repo ^
 	-e "TERM=xterm-256color" ^
 	%TEST_ENV_NAME% ^
-	python3 /repo/tests/run_tests.py
+	/bin/bash /repo/tests/docker_run_tests.sh
