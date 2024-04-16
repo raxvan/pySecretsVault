@@ -46,6 +46,15 @@ class Vault():
 		else:
 			self._vault[key] = value
 
+	def putEnc(self, key : str, encoded_value : str):
+		self._dirty = True
+
+		if self._encoded:
+			self._vault[key] = encoded_value
+		else:
+			self._vault[key] = self._encoder.encode(key, encoded_value)
+
+
 	def get(self, key : str, default_value : str = None) -> str:
 		kv = self._vault.get(key, None)
 		if kv == None:

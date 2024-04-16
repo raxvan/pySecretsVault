@@ -3,21 +3,19 @@ import os
 import sys
 import base64
 
-from .vault_folder import GetVaultDirectory
-
-def CreateRsaEncoder(options):
+def CreateEncoder(storage):
 	from .rsa_encoder import RsaEncoder
+	return RsaEncoder(storage)
 
-	e = RsaEncoder(options)
+def CreateVault(encoder, storage):
+	from .vault_impl import Vault
+	return Vault(encoder, storage)
 
-	return e
+def CreateFileStorage(userPath = None):
+	from .vault_storage import FileStorage
 
-def CreateFileVault(encoder, options):
-	from .vault_file_impl import FileVault
+	return FileStorage(userPath)
 
-	vault_folder = GetVaultDirectory(options.get("vaultdir", None))
-
-	return FileVault(encoder, vault_folder)
 
 def details():
 	import cryptography

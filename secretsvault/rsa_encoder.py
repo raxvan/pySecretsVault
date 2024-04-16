@@ -6,10 +6,15 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
+_public_key = ".publickey"
+_private_key = ".privatekey"
+
 class RsaEncoder():
-	def __init__(self, options):
+	def __init__(self, storage):
 		self.public_key = None
 		self.private_key = None
+
+		self._storage = storage
 
 	def generate_keys(self):
 		private_key = rsa.generate_private_key(
@@ -49,6 +54,25 @@ class RsaEncoder():
 			pemstr.encode('utf-8'),
 		)
 		self.private_key = None
+
+	def initialize(self):
+		private_key = self._storage.readStr(_private_key)
+		if private_key == None:
+			public_key = self._storage.readStr(_public_key)
+			if public_key == None:
+				return False
+
+			self.init_with_public_key(public_key)
+		else:
+			self.init_with_private_key(private_key)
+
+		return True
+
+	def save(self, private):
+		if private:
+			self._storage.writeStr(_private_key, self.get_private_key())
+		else:
+			self._storage.writeStr(_public_key, self.get_public_key())
 
 	def canEncode(self):
 		return self.public_key != None

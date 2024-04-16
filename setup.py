@@ -10,5 +10,10 @@ setup(
     install_requires=[
         "cryptography"
     ],
-    python_requires='>=3.6',  # Minimum version requirement of the package
+    python_requires='>=3.6',
+    entry_points={
+        'console_scripts': [
+            'vault=secretsvault_cli.cli:main',
+        ],
+    }
 )
