@@ -2,11 +2,11 @@
 import json
 import os
 
-from .vault_base_impl import OpenVault
+from .vault_base_impl import Vault
 
-class FileVault(OpenVault):
+class FileVault(Vault):
 	def __init__(self, encoderInstance, vaultdir):
-		OpenVault.__init__(self, encoderInstance)
+		Vault.__init__(self, encoderInstance)
 
 		self._vault_dir = vaultdir
 		self._vault_path = os.path.join(vaultdir, ".database.json")
@@ -33,24 +33,23 @@ class FileVault(OpenVault):
 	def open(self):
 		if self._encoder.canDecode() == False:
 			return False
-
-		OpenVault.open(self)
 		content = self._read()
 		if content != None:
 			encoded_vault = json.loads(content)
-			self._vault = { k : self._encoder.decode(k, v) for k, v in encoded_vault.items()}
+			Vault.create(self, False, { k : self._encoder.decode(k, v) for k, v in encoded_vault.items()})
 			return True
 		else:
-			self._vault = {}
+			Vault.create(self, False, {})
 			return False
 		
 	def close(self) -> bool:
 		if self._encoder.canEncode() == False:
 			return False
-		if OpenVault.close(self):
-			encoded_vault = self.getEncodedVault()
+		
+		if Vault.isDirty(self):
+			encoded_vault = self.getEncoded()
 			self._write(json.dumps(encoded_vault, indent=2))
-			self._drop()
+			self.destroy()
 			return True
 
 		return False

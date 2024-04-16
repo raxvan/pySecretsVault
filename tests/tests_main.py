@@ -33,7 +33,7 @@ assert(vault.isOpen() == False)
 
 #open print
 assert(vault.open() == True) #because it exists
-print(json.dumps(vault.getEncodedVault(), indent=4))
+print(json.dumps(vault.getEncoded(), indent=4))
 assert(vault.get("test-key") == "test-value")
 assert(vault.format("{test-key}") == "test-value")
 

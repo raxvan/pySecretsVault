@@ -2,40 +2,65 @@
 import json
 import os
 
-class OpenVault():
+class Vault():
 	def __init__(self, encoderInstance):
+		self._dirty = None
+		self._encoded = None
+
 		self._vault = None
-		self._dirty = False
 		self._encoder = encoderInstance
 
-	def open(self):
+	def create(self, encoded : bool, vault : dict):
 		self._dirty = False
+		self._encoded = encoded
 		
-	def close(self) -> bool:
-		if self._dirty:
-			self._dirty = False
-			return True
+		self._vault = vault
 
-		return False 
+	def destroy(self):
+		self._vault = None
+		
+	def isDirty(self) -> bool:
+		return self._dirty
 
 	def isOpen(self) -> bool:
 		return self._vault != None
 
-	def _drop(self):
-		self._vault = None
-		self._dirty = False
+	def isEncoded(self) -> bool:
+		return self._encoded
 
-	def getEncodedVault(self):
+	def getEncoded(self):
+		if self._encoded:
+			return self._vault
 		return { k : self._encoder.encode(k, v) for k, v in self._vault.items()}
 
+	def getDecoded(self):
+		if self._encoded:
+			return { k : self._encoder.decode(k, v) for k, v in self._vault.items()}
+		return self._vault
+
 	def put(self, key : str, value : str):
-		self._vault[key] = value
 		self._dirty = True
 
-	def get(self, key : str, default : str = None) -> str:
-		return self._vault.get(key, default)
+		if self._encoded:
+			self._vault[key] = self._encoder.encode(key, vault)
+		else:
+			self._vault[key] = value
+
+	def get(self, key : str, default_value : str = None) -> str:
+		kv = self._vault.get(key, None)
+		if kv == None:
+			return default_value
+		if self._encoded:
+			return self._encoder.decode(key, kv)
+		return kv
 
 	def format(self, s : str) -> str:
-		return s.format(**self._vault)
+		vault = self.getDecoded()
+		return s.format(**vault)
 
+	def open(self):
+		pass
+
+	def close(self):
+		pass
 

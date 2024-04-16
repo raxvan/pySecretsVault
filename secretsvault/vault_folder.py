@@ -11,7 +11,6 @@ def _check_home_folder():
 		return folder
 	return None
 
-
 def GetVaultDirectory(userPath):
 	folder = os.environ.get(_envvar, None)
 	if folder != None:
@@ -39,5 +38,4 @@ def GetVaultDirectory(userPath):
 		current_dir = parent_dir
 
 	return os.path.join(folder,_hidden_dir)
-
 
