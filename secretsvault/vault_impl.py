@@ -16,7 +16,6 @@ class Vault():
 	def create(self, encoded : bool, vault : dict):
 		self._encoded = encoded
 		self._dirty = False
-		
 		self._vault = vault
 
 	def destroy(self):
@@ -33,6 +32,9 @@ class Vault():
 
 	def getContent(self) -> dict:
 		return self._vault
+
+	def getStorage(self):
+		return self._storage
 
 	def getEncodedMap(self) -> dict:
 		if self._encoded:
@@ -83,11 +85,16 @@ class Vault():
 
 	def open(self, encoded = True):
 		content = self._storage.readJson(_database_entry)
+		
+		if(self._encoder.initialized() == False):
+			self._encoder.initialize(self._storage)
+			
 		if content != None:
 			if encoded:
 				Vault.create(self, True, content)
 				return True
-			elif self._encoder.canDecode():	
+
+			if self._encoder.canDecode():	
 				Vault.create(self, False, { k : self._encoder.decode(k, v) for k, v in content.items()})
 				return True
 		

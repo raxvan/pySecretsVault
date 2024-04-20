@@ -11,12 +11,12 @@ import secretsvault
 print(json.dumps(secretsvault.details(), indent = 4))
 
 storage = secretsvault.CreateFileStorage()
-enc = secretsvault.CreateEncoder(storage)
+enc = secretsvault.CreateEncoder()
 vault = secretsvault.CreateVault(enc, storage)
 
 #generate encoder keys
 enc.generate_keys() #generate a key pair
-enc.save(True)
+enc.save(storage, True)
 
 public_key = enc.get_public_key()
 private_key = enc.get_private_key()
@@ -24,8 +24,6 @@ private_key = enc.get_private_key()
 print(f"vault folder:\n{storage.folder}")
 print(f"public key:\n{public_key}")
 print(f"private key:\n{private_key}")
-
-
 
 #open close
 assert(vault.isOpen() == False)
@@ -43,7 +41,6 @@ print(json.dumps(vault.getContent(), indent=4))
 assert(vault.get("test-key") == "test-value")
 assert(vault.format("{test-key}") == "test-value")
 vault.close()
-
 
 enc.init_with_public_key(public_key)
 

@@ -46,6 +46,9 @@ class FileStorage():
 	def __init__(self, userDir):
 		self.folder = GetVaultDirectory(userDir)
 
+	def get_location(self):
+		return self.folder
+
 	def writeJson(self, item, content):
 		if not os.path.exists(self.folder):
 			os.makedirs(self.folder)

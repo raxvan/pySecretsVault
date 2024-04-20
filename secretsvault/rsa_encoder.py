@@ -10,11 +10,9 @@ _public_key = ".publickey"
 _private_key = ".privatekey"
 
 class RsaEncoder():
-	def __init__(self, storage):
+	def __init__(self):
 		self.public_key = None
 		self.private_key = None
-
-		self._storage = storage
 
 	def generate_keys(self):
 		private_key = rsa.generate_private_key(
@@ -55,10 +53,12 @@ class RsaEncoder():
 		)
 		self.private_key = None
 
-	def initialize(self):
-		private_key = self._storage.readStr(_private_key)
+	def initialized(self):
+		return self.public_key != None or self.private_key != None
+	def initialize(self, storage):
+		private_key = storage.readStr(_private_key)
 		if private_key == None:
-			public_key = self._storage.readStr(_public_key)
+			public_key = storage.readStr(_public_key)
 			if public_key == None:
 				return False
 
@@ -68,11 +68,11 @@ class RsaEncoder():
 
 		return True
 
-	def save(self, private):
+	def save(self, storage, private):
 		if private:
-			self._storage.writeStr(_private_key, self.get_private_key())
+			storage.writeStr(_private_key, self.get_private_key())
 		else:
-			self._storage.writeStr(_public_key, self.get_public_key())
+			storage.writeStr(_public_key, self.get_public_key())
 
 	def canEncode(self):
 		return self.public_key != None

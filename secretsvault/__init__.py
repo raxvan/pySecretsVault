@@ -3,9 +3,9 @@ import os
 import sys
 import base64
 
-def CreateEncoder(storage):
+def CreateEncoder():
 	from .rsa_encoder import RsaEncoder
-	return RsaEncoder(storage)
+	return RsaEncoder()
 
 def CreateVault(encoder, storage):
 	from .vault_impl import Vault

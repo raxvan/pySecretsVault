@@ -14,9 +14,6 @@ vault = secretsvault.CreateVault(enc, storage)
 enc.generate_keys() #generate a key pair
 enc.save(True) #save the keys into the storage so that initialize() can read them
 
-# or you can load the private/public key using
-enc.initialize()
-
 # from this point you need to open the vault, operate on values, and close the vault:
 
 vault.open()
