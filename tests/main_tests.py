@@ -50,13 +50,6 @@ def test_vault():
 	print("Vault config:")
 	print(vaultConfig)
 
-	test = secretsvault.CreateEncoder(vaultConfig, False)
-	wtf = '{"url": "http://127.0.0.1:5000", "PublicKey": "5KGvJ5urV3VJyK6Gq94m7GAMKNFmjyVLHea6BCPneE3/jZuULvlaWsK/ZSudUuErzIijMnZDHBBoyVd32YN4YruuF6hLMtV4FrTlBFRFtzvaaxyGXwvqitOwLjncQDjXCPlQvPUQIDAQAB"}'
-	print(len(wtf.encode("utf-8")))
-	test.encodeStr(wtf)
-
-	return;
-
 	v = secretsvault.CreateVault(vaultConfig)
 
 	print("Vault Info:")
