@@ -2,29 +2,34 @@
 import os
 import sys
 import argparse
+import json
 
 import secretsvault
 
-def open_vault(basedir):
-	storage = secretsvault.CreateFileStorage(basedir)
-	enc = secretsvault.CreateEncoder()
-	
-	vault = secretsvault.CreateVault(enc, storage)
+def _read_desc(basedir, name):
+	try:
+		f = open(os.path.join(basedir, name), "r")
+		content = json.load(f)
+		f.close()
+		return content
+	except:
+		return None
 
-	if(vault.open(True) == False):
-		print("<<< NEW VAULT >>>")
-		print(f"LOCATION:{storage.get_location()}")
-		print("KEY:")
-		print(enc.get_private_key())
-		print("")
+def open_vault(basedir, vaultdir):
+	directory = secretsvault.GetVaultDirectory(basedir)
+	desc = _read_desc(directory, "main.json")
+	if desc == None:
+		raise Exception("Could not identify vault!")
 
+	vault = secretsvault.CreateVault(desc)
+	if vault == None:
+		raise Exception("Could not load vault!")
 	return vault
 
 def _do_set(basedir, key, value):
 	vault = open_vault(basedir)
 
 	vault.setEnc(key, value)
-	vault.close()
 
 def _do_create(basedir, key):
 	import getpass
@@ -34,8 +39,7 @@ def _do_create(basedir, key):
 	value = getpass.getpass("value:")
 	
 	vault.set(key, value)
-	encv = vault.getEnc(key)
-	vault.close()
+	encv = vault.getEncoded(key)
 
 	print(f"vault set {key} {encv}")
 
@@ -43,17 +47,15 @@ def _do_show(basedir, key):
 	vault = open_vault(basedir)
 
 	value = vault.get(key)
-	vault.close()
 
 	print("-" * 128 + f"\n{value}\n" + "-" * 128)
 
 def _do_list(basedir):
 	vault = open_vault(basedir)
 	index = 0
-	for k, _ in vault.getContent().items():
+	for k in vault.6():
 		print(str(index).rjust(4) + f" | {k}")
 		index += 1
-	vault.close()
 
 def _do_info(basedir):
 	vault = open_vault(basedir)

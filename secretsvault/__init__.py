@@ -3,18 +3,20 @@ import os
 import sys
 import base64
 
-def CreateEncoder():
-	from .rsa_encoder import RsaEncoder
-	return RsaEncoder()
+from .vault_encoder import CreateEncoderWith
+from .vault_encoder import InspectDataForKeys
 
-def CreateVault(encoder, storage):
-	from .vault_impl import Vault
-	return Vault(encoder, storage)
+def CreateEncoder(storage, createNew):
+	return CreateEncoderWith(storage, createNew)
 
-def CreateFileStorage(userPath = None):
-	from .vault_storage import FileStorage
+def CreateFileStorage(userPath, isbinary):
+	from .vault_storage import FileStorageMap
+	return FileStorageMap(userPath, isbinary)
 
-	return FileStorage(userPath)
+
+def CreateVault(desc):
+	from .vault_client import CreateVaultImpl
+	return CreateVaultImpl(desc)
 
 
 def details():
