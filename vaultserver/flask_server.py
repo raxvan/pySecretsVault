@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, Response
 import os
+import re
 import json
 import secretsvault
 
@@ -27,37 +28,47 @@ ENCODER.serialize(CONFIG_STORAGE)
 def executeGet(data):
 	result = {}
 	for k in data:
-		value = DATA_STORAGE['k']
+		value = DATA_STORAGE[k]
 		if value == None:
 			continue
 		result[k] = ENCODER.decodeStr(value)
 	return result
 
+def executeKeys(data):
+	if data == "":
+		return DATA_STORAGE.keys()
+	
+	compiled_pattern = re.compile(pattern)
+
+	return [k for k in DATA_STORAGE.keys() if compiled_pattern.match(k)]
+	
+
 def executeSet(data):
-	result = {}
-	for k in data:
-		value = DATA_STORAGE['k']
-		if value == None:
-			continue
-		result[k] = ENCODER.decodeStr(value)
-	return result
+	index = 0
+	for k,v in data.items():
+		DATA_STORAGE[k] = ENCODER.encodeStr(v)
+		index += 1
+
+	return index
 
 def executePacket(packet):
 	clientEncoder = secretsvault.CreateEncoder(packet, False)
 	if clientEncoder == None:
-		raise Excetion("<missing client key>")
+		raise Exception("<missing client key>")
 
 	out = {}
-
+	
 	_get = packet.get("get", None)
 	if _get != None:
 		out["get"] = executeGet(_get)
 
 	_set = packet.get("set", None)
 	if _set != None:
-		executeSet(_set)
-		out["set"] = True
+		out["set"] = executeSet(_set)
 
+	_keys = packet.get("keys", None)
+	if _keys != None:
+		out["keys"] = executeKeys(_keys)
 
 	return clientEncoder.encodeStr(json.dumps(out))
 
@@ -92,7 +103,7 @@ def routeExecute():
 	try:
 		result = executePacket(operation)
 		return Response(result, mimetype='application/octet-stream')
-	except Excetion as e:
+	except Exception as e:
 		return f"ERROR: Systems wispered {str(e)}!", 404
 
 @app.route('/info', methods=['GET'])

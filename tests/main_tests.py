@@ -47,6 +47,7 @@ def test_vault():
 		"url":"http://127.0.0.1:5000",
 	}
 	vaultConfig.update(serverEncoder.get_public_data())
+	
 	print("Vault config:")
 	print(vaultConfig)
 
@@ -63,11 +64,10 @@ def test_vault():
 	assert(inf2.get("dirty", None) == None)
 	
 	v["test-key"] = "test-value"
-	#assert(v["key"] == "value")
+	assert(v["test-key"] == "test-value")
 
-	#st = secretsvault.CreateFileStorage("/repo/vaultserver/TestVolume/data", False)
-	#assert(v.vaultEncoder.decodeStr(st['key']) == "value")
-	
+	assert("test-key" in v.keys()) 
+
 
 def main():
 	test_encoder()

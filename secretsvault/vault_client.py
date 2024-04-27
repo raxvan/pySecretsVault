@@ -1,6 +1,7 @@
 
 import requests
 import json
+
 from .vault_encoder import CreateEncoderWith
 from .vault_encoder import CreateNewEncoder
 
@@ -74,15 +75,17 @@ class RemoteVault(ApiMap):
 		except Exception as e:
 			raise Exception(f"Request {self.apiExec} failed!\n{str(e)}")
 
-		return None
+	def keys(self, regex = ""):
+		result = self._execute({
+			"keys" : regex
+		})
+		return result['keys']
 
 
 	def __getitem__(self, key):
 		result = self._execute({
 			"get" : [key]
 		})
-		if(result == None):
-			return None
 		return result['get'].get(key, None)
 
 	def __setitem__(self, key, value):
@@ -91,9 +94,7 @@ class RemoteVault(ApiMap):
 				key : value
 			}
 		})
-		if(result == None):
-			return None
-		return result['set'] == True
+		return result['set'] == 1
 
 
 	
