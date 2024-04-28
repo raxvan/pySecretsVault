@@ -18,7 +18,7 @@ class TestStorage():
 	def removeData(self, k):
 		self.data[k] = None
 
-def test_encoder():
+def test_encoder(): 
 	ts = {}
 	enc1 = secretsvault.CreateEncoder(ts, True)
 	enc1.serialize(ts)

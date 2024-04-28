@@ -9,7 +9,7 @@ python3 /repo/vaultserver/make_config.py /vault/config
 
 /bin/bash /repo/vaultserver/entrypoint.sh&
 
-sleep 5
+sleep 2
 
 cd /repo/tests
 python3 /repo/tests/main_tests.py
