@@ -6,6 +6,7 @@ import base64
 from .vault_encoder import CreateEncoderWith
 from .vault_encoder import InspectDataForKeys
 
+
 def CreateEncoder(storage, createNew):
 	return CreateEncoderWith(storage, createNew)
 
@@ -17,6 +18,14 @@ def CreateFileStorage(userPath, isbinary):
 def CreateVault(desc):
 	from .vault_client import CreateVaultImpl
 	return CreateVaultImpl(desc)
+
+def CreateVault(desc):
+	from .vault_client import CreateVaultImpl
+	return CreateVaultImpl(desc)
+
+def FindVaultConfigFolder(userPath):
+	from .vault_client import FindVaultConfigImpl
+	return FindVaultConfigImpl(userPath)
 
 
 def details():

@@ -7,10 +7,53 @@ from .vault_encoder import CreateNewEncoder
 
 _timeout = 2 #2 sec
 
-def CreateVaultImpl(desc):
-	url = desc.get('url', None)
+_hidden_dir = ".vault"
+_envvar = "VAULT_CLIENT_CONFIG"
+
+def _check_home_folder():
+	home_directory = os.path.expanduser('~')
+	folder = os.path.join(home_directory, _hidden_dir)
+	
+	if os.path.exists(folder) and os.path.isdir(folder):
+		return os.path.abspath(folder)
+	return None
+
+def FindVaultConfigImpl(userSearchDir):
+	folder = os.environ.get(_envvar, None)
+	if folder != None:
+		if os.path.exists(folder) and os.path.isdir(folder):
+			return folder
+
+	#if userSearchDir != None:
+	#	folder = os.path.join(userSearchDir, _hidden_dir)
+	#	if os.path.exists(folder):
+	#		user_path = os.path.abspath(folder)
+	#		return user_path
+
+	folder = _check_home_folder()
+	if folder != None:
+		return folder
+
+	folder = os.path.abspath(userSearchDir)
+
+	current_dir = folder
+	while True:
+		vaultpath = os.path.join(current_dir, _hidden_dir)
+		if os.path.exists(vaultpath) and os.path.isdir(vaultpath):
+			return vaultpath
+
+		parent_dir = os.path.dirname(current_dir)
+		if parent_dir == current_dir:
+			break
+		current_dir = parent_dir
+
+	return os.path.join(folder, _hidden_dir)
+
+
+def CreateVaultImpl(config):
+	url = config.get('url', None)
 	if url != None:
-		return RemoteVault(url, desc)
+		return RemoteVault(url, config)
 
 
 class ApiMap():
