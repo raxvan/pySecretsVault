@@ -53,10 +53,10 @@ def _do_info(basedir):
 	searchDir = secretsvault.FindVaultConfigFolder(basedir)
 	print(f"Vault configs: {searchDir}")
 	
-	if not os.path.exits(searchDir):
+	if not os.path.exists(searchDir):
 		return
 	
-	
+
 
 def _do_main(args):
 	basedir = os.getcwd()
