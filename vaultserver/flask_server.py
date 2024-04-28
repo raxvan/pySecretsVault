@@ -5,16 +5,17 @@ import json
 import secretsvault
 
 VERSION = "0.0.1"
-FILE_FOLDER = '/vault'
-MAX_REQUEST_SIZE = 1024 * 1024
 HOST="0.0.0.0"
 PORT=5000
-SERVER_MODE = os.environ.get("SERVER_MODE", "")
-
+MAX_REQUEST_SIZE = 1024 * 1024
+CONFIG_FOLDER = '/vault/config'
+DATA_FOLDER = '/vault/data'
+VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
+VAULT_PUBLISH_KEY = os.environ.get("VAULT_PUBLISH_KEY", "FALSE").upper() == "TRUE"
 ################################################################################################################
 
-CONFIG_STORAGE = secretsvault.CreateFileStorage(os.path.join(FILE_FOLDER,"config"), False)
-DATA_STORAGE = secretsvault.CreateFileStorage(os.path.join(FILE_FOLDER,"data"), True)
+CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
+DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
 
 ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, True)
 ENCODER.serialize(CONFIG_STORAGE)
@@ -52,7 +53,7 @@ def executeList(data):
 	
 
 def executeSet(data):
-	if not isintance(data, dict):
+	if not isinstance(data, dict):
 		raise Exception("<expected dict with 'set'>")
 
 	index = 0
@@ -86,11 +87,10 @@ def executePacket(packet):
 
 ################################################################################################################
 
-@app.route('/exc', methods=['POST'])
+@app.route('/exc', methods=['POST']) 
 def routeExecute():
-
 	if secretsvault.InspectDataForKeys(CONFIG_STORAGE) != None:
-		return "ERROR: System not ready!", 300
+		return "ERRPR: Systems locked!", 300
 
 	content_length = request.headers.get('Content-Length')
 	if content_length is None:
@@ -122,13 +122,15 @@ def routeExecute():
 def routeInfo():
 	info = {
 		"version" : VERSION,
-		"relic" : secretsvault.InspectDataForKeys(CONFIG_STORAGE)
+		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE)
 	}
-	#info.update(ENCODER.get_public_data())
+
+	if VAULT_PUBLISH_KEY:
+		info.update(ENCODER.get_public_data())
 	return info, 200
 
-@app.route('/sanitize', methods=['GET'])
-def routeSanitize():
+@app.route('/unlock', methods=['GET'])
+def routeUnlock():
 	CONFIG_STORAGE.clear()
 	return "OK", 200
 
@@ -136,9 +138,10 @@ def routeSanitize():
 
 if __name__ == '__main__':
 	
-	print(f">>> Server mode [{SERVER_MODE}] ")
+	print(f">> Server mode [{VAULT_SERVER_MODE}] ")
 
-	_debug = True if SERVER_MODE == "debug" else False
+	_debug = True if VAULT_SERVER_MODE == "debug" else False
+
 	app.run(
 		debug=_debug,
 		host=HOST,

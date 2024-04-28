@@ -17,7 +17,7 @@ class ApiMap():
 	def __init__(self, url):
 		self.apiExec = f"{url}/exc"
 		self.apiInfo = f"{url}/info"
-		self.apiSanitize = f"{url}/sanitize"
+		self.apiUnlock = f"{url}/unlock"
 
 
 class RemoteVault(ApiMap):
@@ -37,14 +37,14 @@ class RemoteVault(ApiMap):
 		self.upstreamEncoder = CreateNewEncoder()
 		self.publicData = self.upstreamEncoder.get_public_data()
 
-	def sanitize(self):
+	def unlock(self):
 		try:
-			response = requests.get(self.apiSanitize, timeout=self.timeout)
+			response = requests.get(self.apiUnlock, timeout=self.timeout)
 			if response.status_code != 200:
-				raise Exception(f"Request {self.apiSanitize} failed with code {response.status_code}!");
+				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
 			
 		except Exception as e:
-			raise Exception(f"Request {self.apiSanitize} failed!\n{str(e)}")
+			raise Exception(f"Request {self.apiUnlock} failed!\n{str(e)}")
 
 		return True			
 
@@ -52,7 +52,7 @@ class RemoteVault(ApiMap):
 		try:
 			response = requests.get(self.apiInfo, timeout=self.timeout)
 			if response.status_code != 200:
-				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}!");
+				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
 			content = response.text
 			return json.loads(content)
 		except Exception as e:
@@ -69,7 +69,7 @@ class RemoteVault(ApiMap):
 		try:
 			response = requests.post(self.apiExec, headers=headers, data=packet)
 			if response.status_code != 200:
-				raise Exception(f"Request {self.apiExec} failed with code {response.status_code}!");
+				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
 			reply = self.upstreamEncoder.decodeStr(response.content)
 			return json.loads(reply)
 		except Exception as e:
