@@ -18,7 +18,6 @@ class TestStorage():
 	def removeData(self, k):
 		self.data[k] = None
 
-
 def test_encoder():
 	ts = {}
 	enc1 = secretsvault.CreateEncoder(ts, True)
@@ -37,7 +36,7 @@ def test_encoder():
 	assert(enc1.decodeStr(s2) == "test-value2")
 	
 def test_vault():
-	#load public key
+	#load public key from running server:
 	serverConfig = secretsvault.CreateFileStorage("/repo/tests/VaultTestVolume/config", False)
 	serverEncoder = secretsvault.CreateEncoder(serverConfig, False)
 	assert(serverEncoder != None and serverEncoder.canDecode() == True)
@@ -46,6 +45,11 @@ def test_vault():
 		"url":"http://127.0.0.1:5000",
 	}
 	vaultConfig.update(serverEncoder.get_public_data())
+
+	#write config for next texts:
+	os.makedirs("/repo/tests/.vault", exist_ok=True)
+	with open("/repo/tests/.vault/main.json", "w") as f:
+		f.write(json.dumps(vaultConfig))
 	
 	print("Vault config:")
 	print(vaultConfig)

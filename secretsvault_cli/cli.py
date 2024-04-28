@@ -15,7 +15,7 @@ def _read_desc(basedir, name):
 	except:
 		return None
 
-def open_vault(basedir, vaultdir):
+def open_vault(basedir):
 	directory = secretsvault.FindVaultConfigFolder(basedir)
 	desc = _read_desc(directory, "main.json")
 	if desc == None:
@@ -26,20 +26,21 @@ def open_vault(basedir, vaultdir):
 		raise Exception("Could not load vault!")
 	return vault
 
-def _do_set(basedir, key):
-	import getpass
+def _do_set(basedir, key, value):
 
 	vault = open_vault(basedir)
-	value = getpass.getpass("Value:")
+	if value == None:
+		import getpass
+		value = getpass.getpass("Value:")
 	
 	vault[key] = value
 
 def _do_get(basedir, key):
 	vault = open_vault(basedir)
 
-	value = vault.get(key, None)
-
-	print("-" * 128 + f"\n{value}\n" + "-" * 128)
+	value = vault[key]
+	if value != None:
+		print("-" * 128 + f"\n{value}\n" + "-" * 128)
 
 def _do_list(basedir):
 	vault = open_vault(basedir)
@@ -51,14 +52,18 @@ def _do_list(basedir):
 def _do_info(basedir):
 	searchDir = secretsvault.FindVaultConfigFolder(basedir)
 	print(f"Vault configs: {searchDir}")
-	#vault = open_vault(basedir)
+	
+	if not os.path.exits(searchDir):
+		return
+	
+	
 
 def _do_main(args):
 	basedir = os.getcwd()
 
 	acc = args.action
 	if acc == "set":
-		_do_set(basedir, args.key)
+		_do_set(basedir, args.key, args.value)
 	elif acc == "get":
 		_do_get(basedir, args.key)
 	elif acc == "list":
@@ -76,7 +81,9 @@ def main():
 
 	_set_parser = subparsers.add_parser('set', description='Update (or create) the value of a key using hidden input.')
 	_set_parser.set_defaults(action='set')
-	_set_parser.add_argument('key', default=None, help='The entry key')
+	_set_parser.add_argument('key', help='The key must respect file naming conventions.')
+	_set_parser.add_argument('value', default=None, help='The value can be anything')
+
 
 	_get_parser = subparsers.add_parser('get', description='Prints the value of the key.')
 	_get_parser.set_defaults(action='get')

@@ -1,6 +1,7 @@
 
 import requests
 import json
+import os
 
 from .vault_encoder import CreateEncoderWith
 from .vault_encoder import CreateNewEncoder
@@ -123,7 +124,6 @@ class RemoteVault(ApiMap):
 			"list" : regex
 		})
 		return result['list']
-
 
 	def __getitem__(self, key):
 		result = self._execute({
