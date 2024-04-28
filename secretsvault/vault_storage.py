@@ -81,11 +81,15 @@ class FileStorageMap():
 		f.close()
 
 	def _read_file(self, name : str) -> bytes:
-		fp = _create_path(self.folder, name)
-		if fp == None or os.path.exists(fp) == False:
-			return None
-
 		try:
+			fp = _create_path(self.folder, name)
+			if fp == None:
+				return None
+			if not os.path.exists(fp):
+				return None
+			if not os.path.isfile(fp):
+				return None
+				
 			f = open(fp, "rb" if self.isbinary else "r")
 			content = f.read()
 			f.close()

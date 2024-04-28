@@ -13,10 +13,6 @@ SERVER_MODE = os.environ.get("SERVER_MODE", "")
 
 ################################################################################################################
 
-app = Flask(__name__)
-
-################################################################################################################
-
 CONFIG_STORAGE = secretsvault.CreateFileStorage(os.path.join(FILE_FOLDER,"config"), False)
 DATA_STORAGE = secretsvault.CreateFileStorage(os.path.join(FILE_FOLDER,"data"), True)
 
@@ -25,28 +21,44 @@ ENCODER.serialize(CONFIG_STORAGE)
 
 ################################################################################################################
 
-def executeGet(data):
+app = Flask(__name__)
+
+################################################################################################################
+
+def executeQuery(data):
+	if not isinstance(data, list):
+		raise Exception("<expected list with 'query'>")
 	result = {}
+
 	for k in data:
-		value = DATA_STORAGE[k]
+		ks = str(k)
+		value = DATA_STORAGE[ks]
 		if value == None:
 			continue
-		result[k] = ENCODER.decodeStr(value)
+		result[ks] = ENCODER.decodeStr(value)
 	return result
 
-def executeKeys(data):
+def executeList(data):
+
 	if data == "":
 		return DATA_STORAGE.keys()
 	
-	compiled_pattern = re.compile(pattern)
+	try:
+		compiled_pattern = re.compile(str(pattern))
+	except:
+		raise Exception(f"<invalid regex: {pattern}>")
 
 	return [k for k in DATA_STORAGE.keys() if compiled_pattern.match(k)]
 	
 
 def executeSet(data):
+	if not isintance(data, dict):
+		raise Exception("<expected dict with 'set'>")
+
 	index = 0
+	
 	for k,v in data.items():
-		DATA_STORAGE[k] = ENCODER.encodeStr(v)
+		DATA_STORAGE[str(k)] = ENCODER.encodeStr(str(v))
 		index += 1
 
 	return index
@@ -54,21 +66,21 @@ def executeSet(data):
 def executePacket(packet):
 	clientEncoder = secretsvault.CreateEncoder(packet, False)
 	if clientEncoder == None:
-		raise Exception("<missing client key>")
+		raise Exception("<missing client token>")
 
 	out = {}
 	
-	_get = packet.get("get", None)
-	if _get != None:
-		out["get"] = executeGet(_get)
+	_queryPacket = packet.get("query", None)
+	if _queryPacket != None:
+		out["query"] = executeQuery(_queryPacket)
 
-	_set = packet.get("set", None)
-	if _set != None:
-		out["set"] = executeSet(_set)
+	_setPacket = packet.get("set", None)
+	if _setPacket != None:
+		out["set"] = executeSet(_setPacket)
 
-	_keys = packet.get("keys", None)
-	if _keys != None:
-		out["keys"] = executeKeys(_keys)
+	_listPacket = packet.get("list", None)
+	if _listPacket != None:
+		out["list"] = executeList(_listPacket)
 
 	return clientEncoder.encodeStr(json.dumps(out))
 
@@ -76,6 +88,7 @@ def executePacket(packet):
 
 @app.route('/exc', methods=['POST'])
 def routeExecute():
+
 	if secretsvault.InspectDataForKeys(CONFIG_STORAGE) != None:
 		return "ERROR: System not ready!", 300
 
@@ -91,18 +104,17 @@ def routeExecute():
 		return "ERROR: Systems overload!", 401
 
 	try:
-		operation = ENCODER.decodeStr(request.stream.read(content_length))
+		packet = ENCODER.decodeStr(request.stream.read(content_length))
 	except:
 		return "ERROR: Systems corrupted!", 402
 
 	try:
-		operation = json.loads(operation)
+		packet = json.loads(packet)
 	except:
 		return "ERROR: Systems miscommunication!", 403
 
 	try:
-		result = executePacket(operation)
-		return Response(result, mimetype='application/octet-stream')
+		return Response(executePacket(packet), mimetype='application/octet-stream')
 	except Exception as e:
 		return f"ERROR: Systems wispered {str(e)}!", 404
 
@@ -110,7 +122,7 @@ def routeExecute():
 def routeInfo():
 	info = {
 		"version" : VERSION,
-		"dirty" : secretsvault.InspectDataForKeys(CONFIG_STORAGE)
+		"relic" : secretsvault.InspectDataForKeys(CONFIG_STORAGE)
 	}
 	#info.update(ENCODER.get_public_data())
 	return info, 200

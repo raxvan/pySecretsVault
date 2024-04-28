@@ -77,16 +77,16 @@ class RemoteVault(ApiMap):
 
 	def keys(self, regex = ""):
 		result = self._execute({
-			"keys" : regex
+			"list" : regex
 		})
-		return result['keys']
+		return result['list']
 
 
 	def __getitem__(self, key):
 		result = self._execute({
-			"get" : [key]
+			"query" : [key]
 		})
-		return result['get'].get(key, None)
+		return result['query'].get(key, None)
 
 	def __setitem__(self, key, value):
 		result = self._execute({
