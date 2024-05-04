@@ -11,7 +11,6 @@ rm test_file ||:
 
 
 echo "starting server:"
-python3 /repo/vaultserver/make_config.py /vault/config
 
 /bin/bash /repo/vaultserver/entrypoint.sh&
 

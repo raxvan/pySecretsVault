@@ -7,7 +7,7 @@ import secretsvault
 VERSION = os.environ.get("VAULT_VERSION", "0.0.1")
 HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
 PORT=int(os.environ.get("VAULT_PORT", "5000"))
-MAX_REQUEST_SIZE = 1024 * 1024
+MAX_REQUEST_SIZE = int(os.environ.get("VAULT_MAX_REQUEST_SIZE", str(1024 * 1024)))
 CONFIG_FOLDER = os.environ.get("VAULT_CONFIG_DIR", '/vault/config')
 DATA_FOLDER = os.environ.get("VAULT_DATA_DIR", '/vault/data')
 VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
@@ -19,7 +19,7 @@ DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
 
 ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False)
 if ENCODER == None:
-	raise Exception("Could not start server")
+	raise Exception("Failed to create encoder")
 
 ################################################################################################################
 
