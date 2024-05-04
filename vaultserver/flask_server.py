@@ -4,12 +4,12 @@ import re
 import json
 import secretsvault
 
-VERSION = "0.0.1"
-HOST="0.0.0.0"
-PORT=5000
+VERSION = os.environ.get("VAULT_VERSION", "0.0.1")
+HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
+PORT=int(os.environ.get("VAULT_PORT", "5000"))
 MAX_REQUEST_SIZE = 1024 * 1024
-CONFIG_FOLDER = '/vault/config'
-DATA_FOLDER = '/vault/data'
+CONFIG_FOLDER = os.environ.get("VAULT_CONFIG_DIR", '/vault/config')
+DATA_FOLDER = os.environ.get("VAULT_DATA_DIR", '/vault/data')
 VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
 VAULT_PUBLISH_KEY = os.environ.get("VAULT_PUBLISH_KEY", "FALSE").upper() == "TRUE"
 ################################################################################################################

@@ -16,7 +16,6 @@ docker run \
 	-v $REPODIR:/repo \
 	-v $REPODIR/tests/VaultTestVolume:/vault \
 	-e "TERM=xterm-256color" \
-	-e "VAULT_PUBLISH_KEY=TRUE" \
 	$TEST_ENV_NAME \
 	/bin/bash /repo/tests/main_tests_entrypoint.sh
 

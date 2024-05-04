@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cd /repo
+cd $VAULT_INSTALL_DIR
 pip install .
 
-cd /repo/vaultserver
+cd $VAULT_INSTALL_DIR/vaultserver
 
 
 if [ -z "$VAULT_SERVER_SCALING" ]; then
