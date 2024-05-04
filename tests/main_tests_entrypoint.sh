@@ -4,6 +4,12 @@ set -e -o pipefail
 cd /repo
 pip install .
 
+cd /repo/tests/VaultTestVolume
+rm -rf ./data ||:
+rm -rf ./config ||:
+rm test_file ||:
+
+
 echo "starting server:"
 python3 /repo/vaultserver/make_config.py /vault/config
 
@@ -12,6 +18,7 @@ python3 /repo/vaultserver/make_config.py /vault/config
 sleep 2
 
 cd /repo/tests
+
 python3 /repo/tests/main_tests.py
 
 vault info
@@ -21,6 +28,6 @@ vault set test-key2 test-value2
 vault list
 
 
-
-
-
+vault edit ./VaultTestVolume/test_file
+vault cat ./VaultTestVolume/test_file
+vault list

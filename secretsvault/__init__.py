@@ -6,6 +6,8 @@ import base64
 from .vault_encoder import CreateEncoderWith
 from .vault_encoder import InspectDataForKeys
 
+from .vault_utils import vault_encode_file
+from .vault_utils import vault_decode_file
 
 def CreateEncoder(storage, createNew):
 	return CreateEncoderWith(storage, createNew)

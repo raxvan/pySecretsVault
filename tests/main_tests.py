@@ -47,12 +47,12 @@ def test_vault():
 	vaultConfig.update(serverEncoder.get_public_data())
 
 	#write config for next texts:
-	os.makedirs("/repo/tests/.vault", exist_ok=True)
-	with open("/repo/tests/.vault/main.json", "w") as f:
-		f.write(json.dumps(vaultConfig))
+	#os.makedirs("/repo/tests/.vault", exist_ok=True)
+	#with open("/repo/tests/.vault/main.json", "w") as f:
+	#	f.write(json.dumps(vaultConfig))
 	
-	print("Vault config:")
-	print(vaultConfig)
+	#print("Vault config:")
+	#print(vaultConfig)
 
 	v = secretsvault.CreateVault(vaultConfig)
 

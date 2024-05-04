@@ -5,7 +5,7 @@ pip install .
 
 cd /repo/vaultserver
 
-#VAULT_SERVER_SCALING=4
+
 if [ -z "$VAULT_SERVER_SCALING" ]; then
     export VAULT_SERVER_SCALING=4
 fi

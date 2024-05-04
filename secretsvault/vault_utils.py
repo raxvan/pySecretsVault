@@ -1,3 +1,4 @@
+from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
@@ -7,10 +8,13 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.concatkdf import ConcatKDFHash
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
 import os
 import json
 import base64
+
+_SALT=os.environ.get("VAULT_SALT","Ct*B8Jba*g$p*uuT4zWByV@ehYyx$3XBbYnGyA5@7W#d@o7")
 
 def vault_rsa_encrypt(public_key, message):
 	encrypted = public_key.encrypt(
@@ -75,3 +79,37 @@ def vault_decrypt_message(private_key, encrypted_message):
 	plaintext = vault_aes_decrypt(aes_key, iv, encrypted_data)
 
 	return plaintext.decode()
+
+def _generate_key(password):
+	salt = _SALT.encode("ascii")
+	kdf = Scrypt(
+		salt=salt,
+		length=32,
+		n=2**14,
+		r=8,
+		p=1,
+		backend=default_backend()
+	)
+	key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+	return key
+
+def vault_encode_file(password, text_file_path, encoded_file_path):
+	key = _generate_key(password)
+	fernet = Fernet(key)
+	with open(text_file_path, 'rb') as file:
+		original = file.read()
+	encrypted = fernet.encrypt(original)
+	with open(encoded_file_path, 'wb') as enc_file:
+		enc_file.write(encrypted)
+
+def vault_decode_file(password, encoded_file_path, text_file_path):
+	key = _generate_key(password)
+	fernet = Fernet(key)
+	with open(encoded_file_path, 'rb') as enc_file:
+		encrypted = enc_file.read()
+	decrypted = fernet.decrypt(encrypted)
+	if text_file_path != None:
+		with open(text_file_path, 'wb') as file:
+			file.write(decrypted)
+	else:
+		return decrypted.decode("utf-8")

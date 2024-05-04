@@ -125,6 +125,12 @@ class RemoteVault(ApiMap):
 		})
 		return result['list']
 
+	def query(self, items_list):
+		result = self._execute({
+			"query" : items_list
+		})
+		return result['query']
+
 	def __getitem__(self, key):
 		result = self._execute({
 			"query" : [key]

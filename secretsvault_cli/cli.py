@@ -4,6 +4,9 @@ import sys
 import argparse
 import json
 
+import tempfile
+import subprocess
+
 import secretsvault
 
 def _read_desc(basedir, name):
@@ -16,15 +19,17 @@ def _read_desc(basedir, name):
 		return None
 
 def open_vault(basedir):
-	directory = secretsvault.FindVaultConfigFolder(basedir)
-	desc = _read_desc(directory, "main.json")
-	if desc == None:
-		raise Exception(f"Could not identify vault in {directory}")
-
-	vault = secretsvault.CreateVault(desc)
-	if vault == None:
+	v = secretsvault.CreateVault({
+		"url" : os.environ.get("VAULT_URL", "http://127.0.0.1:5000")
+	})
+	if v == None:
 		raise Exception("Could not load vault!")
-	return vault
+
+	items = v.query(["url", "PublicKey"])
+	if len(items) == 2:
+		return secretsvault.CreateVault(items)
+
+	return v
 
 def _do_set(basedir, key, value):
 
@@ -49,13 +54,68 @@ def _do_list(basedir):
 		print(str(index).rjust(4) + f" | {k}")
 		index += 1
 
+def _locate_file(basedir, path):
+	if os.path.exists(path):
+		return os.path.abspath(path)
+
+	if os.path.isabs(path):
+		return path
+	return os.path.abspath(os.path.join(basedir, path))
+
+def _get_file_password(vault, filename):
+	key = vault[filename]
+	if key == None:
+		import getpass
+		key = getpass.getpass(f"[{filename}] TOKEN:")
+		if key == "":
+			import secrets
+			import string
+			characters = string.ascii_letters + string.digits + string.punctuation
+			key = ''.join(secrets.choice(characters) for i in range(64))
+
+		vault[filename] = key
+
+	return key
+
+def _do_edit(basedir, path):
+	file = _locate_file(basedir, path)
+	folder, filename = os.path.split(file)
+
+	temp = tempfile.NamedTemporaryFile(delete=False)
+	tfpath = temp.name
+	temp.close()
+
+	vault = open_vault(basedir)
+
+	pwd = _get_file_password(vault, filename)
+
+	if os.path.exists(file):
+		secretsvault.vault_decode_file(pwd, file, tfpath)
+
+	subprocess.run(['nano', tfpath])
+
+	secretsvault.vault_encode_file(pwd, tfpath, file)
+
+	os.remove(tfpath)
+
+def _do_cat(basedir, path):
+	file = _locate_file(basedir, path)
+
+	if not os.path.exists(file):
+		raise Exception(f"Could not find {file}")
+
+	folder, filename = os.path.split(file)
+
+	vault = open_vault(basedir)
+	content = secretsvault.vault_decode_file(_get_file_password(vault, filename), file, None)
+	print(content)
+
 def _do_info(basedir):
 	searchDir = secretsvault.FindVaultConfigFolder(basedir)
 	print(f"Vault configs: {searchDir}")
 	
 	if not os.path.exists(searchDir):
 		return
-	
 
 
 def _do_main(args):
@@ -70,6 +130,10 @@ def _do_main(args):
 		_do_list(basedir)
 	elif acc == "info":
 		_do_info(basedir)
+	elif acc == "edit":
+		_do_edit(basedir, args.path)
+	elif acc == "cat":
+		_do_cat(basedir, args.path)
 
 	os.chdir(basedir)
 
@@ -84,6 +148,13 @@ def main():
 	_set_parser.add_argument('key', help='The key must respect file naming conventions.')
 	_set_parser.add_argument('value', default=None, help='The value can be anything')
 
+	_edit_parser = subparsers.add_parser('edit', description='Edit a vault file.')
+	_edit_parser.set_defaults(action='edit')
+	_edit_parser.add_argument('path', help='File path to edit')
+
+	_cat_parser = subparsers.add_parser('cat', description='Prints content of a vault file.')
+	_cat_parser.set_defaults(action='cat')
+	_cat_parser.add_argument('path', help='File path to edit')
 
 	_get_parser = subparsers.add_parser('get', description='Prints the value of the key.')
 	_get_parser.set_defaults(action='get')
