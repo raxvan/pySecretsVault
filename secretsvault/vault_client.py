@@ -76,7 +76,7 @@ class RemoteVault(ApiMap):
 		if self.vaultEncoder == None:
 			self.vaultEncoder = CreateEncoderWith(self.info(), False)
 			if (self.vaultEncoder == None):
-				raise Exception(f"Failed to create vault encoder with {url}")
+				raise Exception(f"Failed to create vault encoder for {url}. No public key provided!")
 
 		self.upstreamEncoder = CreateNewEncoder()
 		self.publicData = self.upstreamEncoder.get_public_data()
