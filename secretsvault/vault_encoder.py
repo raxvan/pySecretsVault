@@ -84,7 +84,8 @@ class EncoderImpl():
 				encryption_algorithm=serialization.NoEncryption()
 			)
 			out[_private_key] = base64.b64encode(pb).decode('ascii')
-		elif self.publicKey != None:
+
+		if self.publicKey != None:
 			pb = self.publicKey.public_bytes(
 				encoding=serialization.Encoding.DER,
 				format=serialization.PublicFormat.SubjectPublicKeyInfo

@@ -123,7 +123,9 @@ def routeExecute():
 def routeInfo():
 	info = {
 		"version" : VERSION,
-		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE)
+		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE),
+		"maxq" : MAX_REQUEST_SIZE,
+		"mode" : VAULT_SERVER_MODE,
 	}
 
 	if VAULT_PUBLISH_KEY:

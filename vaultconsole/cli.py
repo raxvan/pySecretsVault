@@ -19,17 +19,7 @@ def _read_desc(basedir, name):
 		return None
 
 def open_vault(basedir):
-	v = secretsvault.CreateVault({
-		"url" : os.environ.get("VAULT_URL", "http://127.0.0.1:5000")
-	})
-	if v == None:
-		raise Exception("Could not load vault!")
-
-	items = v.query(["url", "PublicKey"])
-	if len(items) == 2:
-		return secretsvault.CreateVault(items)
-
-	return v
+	return secretsvault.OpenVault()
 
 def _do_set(basedir, key, value):
 
@@ -61,6 +51,7 @@ def _locate_file(basedir, path):
 	if os.path.isabs(path):
 		return path
 	return os.path.abspath(os.path.join(basedir, path))
+
 
 def _get_file_password(vault, filename):
 	key = vault[filename]
@@ -98,6 +89,20 @@ def _do_edit(basedir, path):
 
 	os.remove(tfpath)
 
+def _do_load(basedir, path):
+	file = _locate_file(basedir, path)
+	folder, filename = os.path.split(file)
+
+	vault = open_vault(basedir)
+	content = secretsvault.vault_decode_file(_get_file_password(vault, filename), file, None)
+	try:
+		content = json.loads(content)
+	except:
+		raise Exception(f"Failed to decode file {file}")
+
+	vault.update(content)
+
+
 def _do_cat(basedir, path):
 	file = _locate_file(basedir, path)
 
@@ -111,12 +116,10 @@ def _do_cat(basedir, path):
 	print(content)
 
 def _do_info(basedir):
-	searchDir = secretsvault.FindVaultConfigFolder(basedir)
-	print(f"Vault configs: {searchDir}")
-	
-	if not os.path.exists(searchDir):
-		return
-
+	vault = open_vault(basedir)
+	inf = vault.info()
+	for k,v in inf.items():
+		print(k.rjust(32) + " | " + str(v))
 
 def _do_main(args):
 	basedir = os.getcwd()
@@ -134,6 +137,8 @@ def _do_main(args):
 		_do_edit(basedir, args.path)
 	elif acc == "cat":
 		_do_cat(basedir, args.path)
+	elif acc == "load":
+		_do_load(basedir, args.path)
 
 	os.chdir(basedir)
 
@@ -151,6 +156,10 @@ def main():
 	_edit_parser = subparsers.add_parser('edit', description='Edit a vault file.')
 	_edit_parser.set_defaults(action='edit')
 	_edit_parser.add_argument('path', help='File path to edit')
+
+	_load_parser = subparsers.add_parser('load', description='Loads from an encoded file into the vault')
+	_load_parser.set_defaults(action='load')
+	_load_parser.add_argument('path', help='File encoded vault')
 
 	_cat_parser = subparsers.add_parser('cat', description='Prints content of a vault file.')
 	_cat_parser.set_defaults(action='cat')

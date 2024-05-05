@@ -62,6 +62,7 @@ class ApiMap():
 		self.apiExec = f"{url}/exc"
 		self.apiInfo = f"{url}/info"
 		self.apiUnlock = f"{url}/unlock"
+		self.url = url
 
 
 class RemoteVault(ApiMap):
@@ -92,7 +93,7 @@ class RemoteVault(ApiMap):
 
 		return True			
 
-	def info(self):
+	def _info(self):
 		try:
 			response = requests.get(self.apiInfo, timeout=self.timeout)
 			if response.status_code != 200:
@@ -101,6 +102,11 @@ class RemoteVault(ApiMap):
 			return json.loads(content)
 		except Exception as e:
 			raise Exception(f"Request {self.apiInfo} failed!\n{str(e)}")
+		
+	def info(self):
+		result = self._info()
+		result["url"] = self.url
+		result["timeout"] = self.timeout
 
 	def _execute(self, operation):
 
@@ -130,6 +136,12 @@ class RemoteVault(ApiMap):
 			"query" : items_list
 		})
 		return result['query']
+
+	def update(self, dict_values):
+		result = self._execute({
+			"set" : dict_values
+		})
+		return result['set']
 
 	def __getitem__(self, key):
 		result = self._execute({

@@ -29,6 +29,18 @@ def FindVaultConfigFolder(userPath):
 	from .vault_client import FindVaultConfigImpl
 	return FindVaultConfigImpl(userPath)
 
+def OpenVault():
+	v = CreateVault({
+		"url" : os.environ.get("VAULT_URL", "http://127.0.0.1:5000")
+	})
+	if v == None:
+		raise Exception("Could not load vault!")
+
+	items = v.query(["url", "PublicKey"])
+	if len(items) == 2:
+		return CreateVault(items)
+
+	return v
 
 def details():
 	import cryptography
