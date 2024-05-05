@@ -107,6 +107,7 @@ class RemoteVault(ApiMap):
 		result = self._info()
 		result["url"] = self.url
 		result["timeout"] = self.timeout
+		return result
 
 	def _execute(self, operation):
 
