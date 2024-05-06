@@ -12,7 +12,7 @@ rm test_file ||:
 
 echo "starting server:"
 
-/bin/bash /repo/vaultserver/entrypoint.sh&
+/bin/sh /repo/vaultserver/entrypoint.sh&
 
 sleep 2
 

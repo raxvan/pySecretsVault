@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -z "$VAULT_INSTALL_DIR" ]; then
     echo "VAULT: repository path is required to be set to VAULT_INSTALL_DIR"
