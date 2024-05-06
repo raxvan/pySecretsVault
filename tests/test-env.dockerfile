@@ -6,11 +6,7 @@ RUN apt-get update && apt-get install -y \
 	nano
 
 RUN pip3 install --upgrade pip && pip3 install \
-	pudb \
-	requests \
-	cryptography \
-	flask \
-	gunicorn
+	pudb
 
 ENV VAULT_INSTALL_DIR=/repo
 ENV VAULT_SERVER_SCALING=4
