@@ -1,7 +1,12 @@
 #!/bin/bash
 
+if [ -z "$VAULT_INSTALL_DIR" ]; then
+    echo "VAULT: repository path is required to be set to VAULT_INSTALL_DIR"
+    exit -1
+fi
+
 cd $VAULT_INSTALL_DIR
-pip install .
+pip3 install .
 
 cd $VAULT_INSTALL_DIR/vaultserver
 
@@ -16,9 +21,8 @@ if [ "$VAULT_SERVER_MODE" = "debug" ]; then
     python3 flask_server.py
     #flask --app flask_server run
 else
-
     echo "VAULT: starting server with scaling $VAULT_SERVER_SCALING"
-	gunicorn -w $VAULT_SERVER_SCALING -b $VAULT_HOST:$VAULT_PORT flask_server:app
+    gunicorn -w $VAULT_SERVER_SCALING -b $VAULT_HOST:$VAULT_PORT flask_server:app
     #gunicorn --worker-class sync --workers 4 --bind 0.0.0.0:8000 "myapp:create_app()" --pythonpath `which pypy3`
 fi
 

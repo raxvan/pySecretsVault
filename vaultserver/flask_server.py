@@ -4,7 +4,7 @@ import re
 import json
 import secretsvault
 
-VERSION = os.environ.get("VAULT_VERSION", "0.0.1")
+VERSION = os.environ.get("VAULT_VERSION", "0.0.0")
 HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
 PORT=int(os.environ.get("VAULT_PORT", "5000"))
 MAX_REQUEST_SIZE = int(os.environ.get("VAULT_MAX_REQUEST_SIZE", str(1024 * 1024)))
