@@ -43,11 +43,11 @@ class RemoteVault(ApiMap):
 			response = requests.get(self.apiUnlock, timeout=self.timeout)
 			if response.status_code != 200:
 				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
-			
+
 		except Exception as e:
 			raise Exception(f"Request {self.apiUnlock} failed!\n{str(e)}")
 
-		return True			
+		return True
 
 	def _info(self):
 		try:
@@ -58,7 +58,7 @@ class RemoteVault(ApiMap):
 			return json.loads(content)
 		except Exception as e:
 			raise Exception(f"Request {self.apiInfo} failed!\n{str(e)}")
-		
+
 	def info(self):
 		result = self._info()
 		result["url"] = self.url
@@ -121,8 +121,7 @@ class RemoteVault(ApiMap):
 		return result['set'] == 1
 
 
-	
-		
 
 
-	
+
+

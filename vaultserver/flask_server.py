@@ -18,9 +18,9 @@ VAULT_PUBLISH_KEY = os.environ.get("VAULT_PUBLISH_KEY", "FALSE").upper() == "TRU
 CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
 DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
 
-ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, True if VAULT_SERVER_MODE=="local" else False)
+ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False)
 if ENCODER == None:
-	raise Exception("Failed to create encoder")
+	raise Exception("Failed to create encoder!")
 
 ################################################################################################################
 
@@ -60,8 +60,6 @@ def executeFind(pattern):
 		raise Exception(f"<invalid regex: {pattern}>")
 
 	return {k : ENCODER.decodeStr(DATA_STORAGE[k]) for k in DATA_STORAGE.keys() if compiled_pattern.match(k)}
-	
-
 
 def executeSet(data):
 	if not isinstance(data, dict):

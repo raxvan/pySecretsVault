@@ -12,9 +12,12 @@ rm test_file ||:
 
 echo "starting server:"
 
+export VAULT_PUBLISH_KEY=TRUE
+export VAULT_SERVER_MODE=local
 /bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
 
-sleep 2
+sleep $VAULT_STARTUP_TIME
+sleep 5
 
 cd /repo/tests
 
