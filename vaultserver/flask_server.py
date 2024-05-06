@@ -40,9 +40,9 @@ def executeQuery(data):
 		result[ks] = ENCODER.decodeStr(value)
 	return result
 
-def executeList(data):
+def executeList(pattern):
 
-	if data == "":
+	if pattern == "":
 		return DATA_STORAGE.keys()
 	
 	try:
@@ -52,6 +52,15 @@ def executeList(data):
 
 	return [k for k in DATA_STORAGE.keys() if compiled_pattern.match(k)]
 	
+def executeFind(pattern):
+	try:
+		compiled_pattern = re.compile(str(pattern))
+	except:
+		raise Exception(f"<invalid regex: {pattern}>")
+
+	return {k : ENCODER.decodeStr(DATA_STORAGE[k]) for k in DATA_STORAGE.keys() if compiled_pattern.match(k)}
+	
+
 
 def executeSet(data):
 	if not isinstance(data, dict):
@@ -83,6 +92,10 @@ def executePacket(packet):
 	_listPacket = packet.get("list", None)
 	if _listPacket != None:
 		out["list"] = executeList(_listPacket)
+
+	_findPacket = packet.get("find", None)
+	if _findPacket != None:
+		out["find"] = executeFind(_findPacket)
 
 	return clientEncoder.encodeStr(json.dumps(out))
 

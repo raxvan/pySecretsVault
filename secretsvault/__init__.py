@@ -25,10 +25,6 @@ def CreateVault(desc):
 	from .vault_client import CreateVaultImpl
 	return CreateVaultImpl(desc)
 
-def FindVaultConfigFolder(userPath):
-	from .vault_client import FindVaultConfigImpl
-	return FindVaultConfigImpl(userPath)
-
 def OpenVault():
 	v = CreateVault({
 		"url" : os.environ.get("VAULT_URL", "http://127.0.0.1:5000")

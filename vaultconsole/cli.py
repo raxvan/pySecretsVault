@@ -37,12 +37,20 @@ def _do_get(basedir, key):
 	if value != None:
 		print("-" * 128 + f"\n{value}\n" + "-" * 128)
 
-def _do_list(basedir):
+def _do_list(basedir, regex):
 	vault = open_vault(basedir)
 	index = 0
-	for k in vault.keys():
+	for k in vault.keys(regex if regex != None else ""):
 		print(str(index).rjust(4) + f" | {k}")
 		index += 1
+
+def _do_find(basedir, regex):
+	vault = open_vault(basedir)
+	items = vault.find(regex)
+	print(f"Items found:{len(items)}")
+
+	for k, v in items.items():
+		print(str(k).rjust(32) + f" | {v}")
 
 def _locate_file(basedir, path):
 	if os.path.exists(path):
@@ -130,7 +138,7 @@ def _do_main(args):
 	elif acc == "get":
 		_do_get(basedir, args.key)
 	elif acc == "list":
-		_do_list(basedir)
+		_do_list(basedir, args.regex)
 	elif acc == "info":
 		_do_info(basedir)
 	elif acc == "edit":
@@ -139,6 +147,8 @@ def _do_main(args):
 		_do_cat(basedir, args.path)
 	elif acc == "load":
 		_do_load(basedir, args.path)
+	elif acc == "find":
+		_do_find(basedir, args.regex)
 
 	os.chdir(basedir)
 
@@ -151,7 +161,7 @@ def main():
 	_set_parser = subparsers.add_parser('set', description='Update (or create) the value of a key using hidden input.')
 	_set_parser.set_defaults(action='set')
 	_set_parser.add_argument('key', help='The key must respect file naming conventions.')
-	_set_parser.add_argument('value', default=None, help='The value can be anything')
+	_set_parser.add_argument('value', nargs='?', default=None, help='The value can be anything')
 
 	_edit_parser = subparsers.add_parser('edit', description='Edit a vault file.')
 	_edit_parser.set_defaults(action='edit')
@@ -167,12 +177,17 @@ def main():
 
 	_get_parser = subparsers.add_parser('get', description='Prints the value of the key.')
 	_get_parser.set_defaults(action='get')
-	_get_parser.add_argument('key', default=None, help='The entry key')
+	_get_parser.add_argument('key', help='The entry key')
 
-	_list_parser = subparsers.add_parser('list', description='Show all entries')
+	_list_parser = subparsers.add_parser('list', description='Lists entry keys.')
 	_list_parser.set_defaults(action='list')
+	_list_parser.add_argument('regex', nargs='?', default="", help='Optional key search regex')
 
-	_vault_info = subparsers.add_parser('info', description='Show vault information')
+	_find_parser = subparsers.add_parser('find', description='Finds entries.')
+	_find_parser.set_defaults(action='find')
+	_find_parser.add_argument('regex', help='Key search regex')
+
+	_vault_info = subparsers.add_parser('info', description='Show vault information.')
 	_vault_info.set_defaults(action='info')
 
 	

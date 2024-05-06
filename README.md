@@ -32,3 +32,4 @@ print(v["key"])
 
 - VAULT_SERVER_SCALING=4
 - VAULT_INSTALL_DIR
+- VAULT_URL=http://127.0.0.1:5000

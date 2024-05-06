@@ -20,13 +20,20 @@ cd /repo/tests
 
 python3 /repo/tests/main_tests.py
 
+echo "INFO:"
 vault info
+echo "LIST:"
 vault list
+echo "GET:"
 vault get test-key
+echo "SET(kv):"
 vault set test-key2 test-value2
-vault list
-
+echo "SET(k):"
+vault set test^key3
+echo "LIST(r):"
+vault list test-.*
+echo "FIND:"
+vault find test-.*
 
 vault edit ./VaultTestVolume/test_file
 vault cat ./VaultTestVolume/test_file
-vault list
