@@ -17,7 +17,7 @@ VAULT_PUBLISH_KEY = os.environ.get("VAULT_PUBLISH_KEY", "FALSE").upper() == "TRU
 CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
 DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
 
-ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False)
+ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, True if VAULT_SERVER_MODE=="local" else False)
 if ENCODER == None:
 	raise Exception("Failed to create encoder")
 

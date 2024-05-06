@@ -27,7 +27,7 @@ print(v["key"])
 - VAULT_MAX_REQUEST_SIZE=1048576
 - VAULT_CONFIG_DIR/vault/config
 - VAULT_DATA_DIR=/vault/data
-- VAULT_SERVER_MODE=none
+- VAULT_SERVER_MODE=none/debug/live/local
 - VAULT_PUBLISH_KEY=FALSE
 
 - VAULT_SERVER_SCALING=4

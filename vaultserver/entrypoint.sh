@@ -10,7 +10,9 @@ pip3 install .
 
 cd $VAULT_INSTALL_DIR/vaultserver
 
-python3 ./make_config.py $VAULT_CONFIG_DIR
+if [ -z "$VAULT_SERVER_MODE" ]; then
+    export VAULT_SERVER_MODE=live
+fi
 
 if [ -z "$VAULT_SERVER_SCALING" ]; then
     export VAULT_SERVER_SCALING=4
@@ -22,6 +24,10 @@ fi
 
 if [ -z "$VAULT_PORT" ]; then
     export VAULT_PORT=5000
+fi
+
+if [ "$VAULT_SERVER_MODE" = "live" ]; then
+    python3 ./make_config.py $VAULT_CONFIG_DIR
 fi
 
 if [ "$VAULT_SERVER_MODE" = "debug" ]; then
