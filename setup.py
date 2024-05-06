@@ -8,7 +8,10 @@ setup(
     long_description_content_type = 'text/markdown',
     packages = find_packages(),
     install_requires = [
-        "cryptography"
+        "cryptography",
+        "gunicorn",
+        "flask",
+        "requests"
     ],
     python_requires = '>=3.6',
     entry_points = {
