@@ -12,7 +12,6 @@ rm test_file ||:
 
 echo "starting server:"
 
-export VAULT_PUBLISH_KEY=TRUE
 export VAULT_SERVER_MODE=local
 /bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
 
