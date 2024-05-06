@@ -115,22 +115,26 @@ def routeExecute():
 		if content_length > MAX_REQUEST_SIZE:
 			raise
 	except:
+		print(f"Invalid Content-Length {content_length}", file=sys.stderr)
 		return "ERROR: Systems overload!", 401
 
 	try:
 		packet = ENCODER.decodeStr(request.stream.read(content_length))
-	except:
+	except Exception as e:
+		print(f"Decode error occurred: {e}", file=sys.stderr)
 		return "ERROR: Systems corrupted!", 402
 
 	try:
 		packet = json.loads(packet)
-	except:
+	except Exception as e:
+		print(f"Json Parse error occurred: {e}", file=sys.stderr)
 		return "ERROR: Systems miscommunication!", 403
 
 	try:
 		return Response(executePacket(packet), mimetype='application/octet-stream')
 	except Exception as e:
-		return f"ERROR: Systems wispered {str(e)}!", 404
+		print(f"Execute error: {e}", file=sys.stderr)
+		return f"ERROR: Systems wispered error!", 404
 
 @app.route('/info', methods=['GET'])
 def routeInfo():
