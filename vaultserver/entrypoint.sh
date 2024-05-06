@@ -16,6 +16,14 @@ if [ -z "$VAULT_SERVER_SCALING" ]; then
     export VAULT_SERVER_SCALING=4
 fi
 
+if [ -z "$VAULT_HOST" ]; then
+    export VAULT_HOST=0.0.0.0
+fi
+
+if [ -z "$VAULT_PORT" ]; then
+    export VAULT_PORT=5000
+fi
+
 if [ "$VAULT_SERVER_MODE" = "debug" ]; then
     echo "VAULT: starting server in debug mode"
     python3 flask_server.py
