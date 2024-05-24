@@ -39,6 +39,7 @@ if [ "$VAULT_SERVER_MODE" = "revive" ]; then
 fi
 
 if [ "$VAULT_SERVER_MODE" = "local" ]; then
+    python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
     python3 $VAULT_INSTALL_DIR/vaultserver/config_destroy.py $VAULT_STARTUP_TIME $VAULT_CONFIG_DIR &
 fi
 

@@ -17,6 +17,7 @@ def CreateVaultImpl(config):
 class ApiMap():
 	def __init__(self, url):
 		self.apiExec = f"{url}/exc"
+		self.apiJoin = f"{url}/join"
 		self.apiInfo = f"{url}/info"
 		self.apiUnlock = f"{url}/unlock"
 		self.url = url
@@ -31,7 +32,7 @@ class RemoteVault(ApiMap):
 		#init
 		self.vaultEncoder = CreateEncoderWith(desc, False)
 		if self.vaultEncoder == None:
-			self.vaultEncoder = CreateEncoderWith(self.info(), False)
+			self.vaultEncoder = CreateEncoderWith(self._join(), False)
 			if (self.vaultEncoder == None):
 				raise Exception(f"Failed to create vault encoder for {url}. No public key provided!")
 
@@ -48,6 +49,16 @@ class RemoteVault(ApiMap):
 			raise Exception(f"Request {self.apiUnlock} failed!\n{str(e)}")
 
 		return True
+
+	def _join(self):
+		try:
+			response = requests.get(self.apiJoin, timeout=self.timeout)
+			if response.status_code == 200:
+				content = response.text
+				return json.loads(content)
+		except Exception as e:
+			pass
+		return {}
 
 	def _info(self):
 		try:

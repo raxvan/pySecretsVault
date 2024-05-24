@@ -22,6 +22,12 @@ ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be T
 if ENCODER == None:
 	raise Exception("Failed to create encoder!")
 
+WHITELIST = CONFIG_STORAGE.get("whitelist", None)
+if WHITELIST == None:
+	WHITELIST = set()
+else:
+	WHITELIST = set(json.loads(WHITELIST))
+
 ################################################################################################################
 
 app = Flask(__name__)
@@ -135,16 +141,37 @@ def routeExecute():
 		print(f"Execute error: {e}", file=sys.stderr)
 		return f"ERROR: Systems wispered error!", 404
 
+def _is_whitelisted(rq):
+	if request.remote_addr in WHITELIST:
+		return True
+	return False
+
+@app.route('/join', methods=['GET'])
+def routeJoin():
+	if VAULT_PUBLISH_KEY == True:
+		return ENCODER.get_public_data(), 200
+	
+	lockedStatus = secretsvault.InspectDataForKeys(CONFIG_STORAGE)
+	whitelisted =_is_whitelisted(request)
+	if lockedStatus == None and whitelisted == True:
+		return ENCODER.get_public_data(), 200
+
+	return f"ERROR: Systems corrupted!", 405
+
 @app.route('/info', methods=['GET'])
 def routeInfo():
+	whitelisted = _is_whitelisted(request)
+
 	info = {
 		"version" : VERSION,
 		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE),
+		"remote_addr" : request.remote_addr,
+		"allowed" : whitelisted,
 		"maxq" : MAX_REQUEST_SIZE,
 		"mode" : VAULT_SERVER_MODE,
 	}
 
-	if VAULT_PUBLISH_KEY:
+	if VAULT_PUBLISH_KEY or whitelisted:
 		info.update(ENCODER.get_public_data())
 	return info, 200
 

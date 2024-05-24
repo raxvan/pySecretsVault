@@ -36,39 +36,14 @@ def test_encoder():
 	assert(enc1.decodeStr(s2) == "test-value2")
 	
 def test_vault():
-	#load public key from running server:
-	#serverConfig = secretsvault.CreateFileStorage("/repo/tests/VaultTestVolume/config", False)
-	#serverEncoder = secretsvault.CreateEncoder(serverConfig, False)
-	#assert(serverEncoder != None and serverEncoder.canDecode() == True)
-
 	vaultConfig = {
 		"url":"http://127.0.0.1:5000",
 	}
-	#vaultConfig.update(serverEncoder.get_public_data())
-
-	#write config for next texts:
-	#os.makedirs("/repo/tests/.vault", exist_ok=True)
-	#with open("/repo/tests/.vault/main.json", "w") as f:
-	#	f.write(json.dumps(vaultConfig))
-	
-	#print("Vault config:")
-	#print(vaultConfig)
-
 	v = secretsvault.CreateVault(vaultConfig)
 
 	inf1 = v.info()
 	print("Vault Info:")
 	print(json.dumps(inf1, indent=4))
-	
-	#assert(inf1 != None)
-	#assert(inf1.get("lockStatus", None) != None)
-	#v.unlock()
-
-	#inf2 = v.info()
-	#print("Vault Info (unlocked):")
-	#print(json.dumps(inf2, indent=4))
-
-	#assert(inf2.get("lockStatus", None) == None)
 	
 	#test getters/setters
 	v["test-key"] = "test-value"

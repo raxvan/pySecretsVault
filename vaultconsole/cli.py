@@ -30,12 +30,16 @@ def _do_set(basedir, key, value):
 	
 	vault[key] = value
 
-def _do_get(basedir, key):
+def _do_get(basedir, key, clean):
 	vault = open_vault(basedir)
 
 	value = vault[key]
-	if value != None:
+	if value != None and clean:
+		print(value, end="")
+	elif value != None:
 		print("-" * 128 + f"\n{value}\n" + "-" * 128)
+	elif clean == False:
+		print("\nNot found!\n")
 
 def _do_list(basedir, regex):
 	vault = open_vault(basedir)
@@ -136,7 +140,7 @@ def _do_main(args):
 	if acc == "set":
 		_do_set(basedir, args.key, args.value)
 	elif acc == "get":
-		_do_get(basedir, args.key)
+		_do_get(basedir, args.key, args.clean)
 	elif acc == "list":
 		_do_list(basedir, args.regex)
 	elif acc == "info":
@@ -177,13 +181,14 @@ def main():
 
 	_get_parser = subparsers.add_parser('get', description='Prints the value of the key.')
 	_get_parser.set_defaults(action='get')
+	_get_parser.add_argument('-c', '--clean', dest='clean', action='store_true', help="Clean print, no extra spaces, newlinst, etc.")
 	_get_parser.add_argument('key', help='The entry key')
 
 	_list_parser = subparsers.add_parser('list', description='Lists entry keys.')
 	_list_parser.set_defaults(action='list')
 	_list_parser.add_argument('regex', nargs='?', default="", help='Optional key search regex')
 
-	_find_parser = subparsers.add_parser('find', description='Finds entries.')
+	_find_parser = subparsers.add_parser('find', description='Finds entries with values.')
 	_find_parser.set_defaults(action='find')
 	_find_parser.add_argument('regex', help='Key search regex')
 

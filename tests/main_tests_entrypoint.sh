@@ -14,6 +14,7 @@ echo "starting server:"
 
 export VAULT_SERVER_MODE=local
 /bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
+#/bin/sh /repo/vaultserver/entrypoint.sh
 
 sleep $VAULT_STARTUP_TIME
 sleep 5
@@ -26,12 +27,17 @@ echo "INFO:"
 vault info
 echo "LIST:"
 vault list
-echo "GET:"
-vault get test-key
+
 echo "SET(kv):"
 vault set test-key2 test-value2
 echo "SET(k):"
-vault set test^key3
+vault set test-key3
+
+echo "GET (missing):"
+vault get test-key
+echo "GET (found):"
+vault get test-key2
+
 echo "LIST(r):"
 vault list test-.*
 echo "FIND:"
