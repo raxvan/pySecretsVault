@@ -67,7 +67,6 @@ def ConfigWaitForPublicKey(data):
 		if decode_key != None:
 			result = EncoderImpl()
 			result.load_private(decode_key)
-			data.clear()
 			return
 		else:
 			time.sleep(1)
