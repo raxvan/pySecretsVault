@@ -38,6 +38,10 @@ def OpenVault():
 
 	return v
 
+def WaitForPublicKey(configdir):
+	from .vault_encoder import ConfigWaitForPublicKey
+	ConfigWaitForPublicKey(configdir)
+
 def details():
 	import cryptography
 

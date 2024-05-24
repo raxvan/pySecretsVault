@@ -60,6 +60,12 @@ def InspectDataForKeys(data):
 
 	return None
 
+def ConfigWaitForPublicKey(configdir):
+	import time
+	path = os.path.join(configdir, _private_key)
+	while not os.path.exists(path):
+		time.sleep(1)
+
 ################################################################################################
 
 class EncoderImpl():

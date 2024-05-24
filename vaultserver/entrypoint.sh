@@ -30,7 +30,13 @@ if [ -z "$VAULT_STARTUP_TIME" ]; then
     export VAULT_STARTUP_TIME=2
 fi
 
-python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
+if [ "$VAULT_SERVER_MODE" = "live" ]; then
+    python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
+fi
+
+if [ "$VAULT_SERVER_MODE" = "revive" ]; then
+    python3 $VAULT_INSTALL_DIR/vaultserver/config_wait.py $VAULT_CONFIG_DIR
+fi
 
 if [ "$VAULT_SERVER_MODE" = "local" ]; then
     python3 $VAULT_INSTALL_DIR/vaultserver/config_destroy.py $VAULT_STARTUP_TIME $VAULT_CONFIG_DIR &

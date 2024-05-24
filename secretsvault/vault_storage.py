@@ -21,8 +21,6 @@ def _delete_files_in_folder(folder_path):
 			except Exception as e:
 				raise Exception(f"Failed to delete {file_path}. Reason: {e}")
 
-
-
 class FileStorageMap():
 	def __init__(self, basedir, isbinary):
 		self.folder = os.path.abspath(basedir)
