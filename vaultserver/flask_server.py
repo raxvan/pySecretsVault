@@ -156,7 +156,7 @@ def routeJoin():
 	if lockedStatus == None and whitelisted == True:
 		return ENCODER.get_public_data(), 200
 
-	return f"ERROR: Systems corrupted!", 405
+	return f"ERROR: System deflect!", 405
 
 @app.route('/info', methods=['GET'])
 def routeInfo():
