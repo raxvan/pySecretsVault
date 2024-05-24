@@ -27,7 +27,7 @@ print(v["key"])
 - VAULT_MAX_REQUEST_SIZE=1048576
 - VAULT_CONFIG_DIR/vault/config
 - VAULT_DATA_DIR=/vault/data
-- VAULT_SERVER_MODE=none/debug/live/local
+- VAULT_SERVER_MODE=none/debug/install/revive
 - VAULT_PUBLISH_KEY=FALSE
 
 - VAULT_STARTUP_TIME=2

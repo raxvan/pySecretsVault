@@ -11,7 +11,7 @@ pip3 install .
 cd $VAULT_INSTALL_DIR/vaultserver
 
 if [ -z "$VAULT_SERVER_MODE" ]; then
-    export VAULT_SERVER_MODE=live
+    export VAULT_SERVER_MODE=revive
 fi
 
 if [ -z "$VAULT_SERVER_SCALING" ]; then
@@ -30,7 +30,7 @@ if [ -z "$VAULT_STARTUP_TIME" ]; then
     export VAULT_STARTUP_TIME=2
 fi
 
-if [ "$VAULT_SERVER_MODE" = "live" ]; then
+if [ "$VAULT_SERVER_MODE" = "install" ]; then
     python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
 fi
 

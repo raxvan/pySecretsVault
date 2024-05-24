@@ -60,11 +60,17 @@ def InspectDataForKeys(data):
 
 	return None
 
-def ConfigWaitForPublicKey(configdir):
+def ConfigWaitForPublicKey(data):
 	import time
-	path = os.path.join(configdir, _private_key)
-	while not os.path.exists(path):
-		time.sleep(1)
+	while True:
+		decode_key = data.get(_private_key, None)
+		if decode_key != None:
+			result = EncoderImpl()
+			result.load_private(decode_key)
+			data.clear()
+			return
+		else:
+			time.sleep(1)
 
 ################################################################################################
 
