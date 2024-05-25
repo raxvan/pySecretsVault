@@ -29,7 +29,7 @@ def OpenVault():
 	url = os.environ.get("VAULT_URL", None)
 	if url == None:
 		raise Exception("No url provided (VAULT_URL)")
-		
+
 	v = CreateVault({
 		"url" : url
 	})
@@ -44,14 +44,6 @@ def OpenVault():
 
 def VaultInfo(url):
 	from .vault_client import GetVaultInfo
-	v = CreateVault({
-		"url" : url
-	})
-	if v == None:
-		raise Exception("Could not load vault!")
-	items = v.query(["url", "PublicKey"])
-	if len(items) == 2:
-		return GetVaultInfo(items['url'])
 	return GetVaultInfo(url)
 
 def WaitForPublicKey(data):
