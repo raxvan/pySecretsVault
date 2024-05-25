@@ -29,8 +29,10 @@ print(v["key"])
 - VAULT_DATA_DIR=/vault/data
 - VAULT_SERVER_MODE=none/debug/install/revive
 - VAULT_PUBLISH_KEY=FALSE
-
+- 
 - VAULT_STARTUP_TIME=2
 - VAULT_SERVER_SCALING=4
 - VAULT_INSTALL_DIR
 - VAULT_URL=http://127.0.0.1:5000
+
+- VAULT_SECURE_SUBNET (defined with ip subnet that will allow public key access)

@@ -4,6 +4,7 @@ import re
 import sys
 import json
 import secretsvault
+from ipaddress import ip_address, ip_network
 
 VERSION = os.environ.get("VAULT_VERSION", "0.0.0")
 HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
@@ -22,11 +23,10 @@ ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be T
 if ENCODER == None:
 	raise Exception("Failed to create encoder!")
 
-WHITELIST = CONFIG_STORAGE.get("whitelist", None)
-if WHITELIST == None:
-	WHITELIST = set()
-else:
-	WHITELIST = set(json.loads(WHITELIST))
+NETWORK_SUBNET = None
+VAULT_SECURE_SUBNET = os.environ.get("VAULT_SECURE_SUBNET", None)
+if VAULT_SECURE_SUBNET != None:
+	NETWORK_SUBNET = ip_network('172.17.0.0/16')
 
 ################################################################################################################
 
@@ -141,8 +141,10 @@ def routeExecute():
 		print(f"Execute error: {e}", file=sys.stderr)
 		return f"ERROR: Systems wispered error!", 404
 
-def _is_whitelisted(rq):
-	if request.remote_addr in WHITELIST:
+def _allow_public_key_access(rq):
+	if NETWORK_SUBNET == None:
+		return True
+	if ip_address(rq.remote_addr) in NETWORK_SUBNET:
 		return True
 	return False
 
@@ -152,26 +154,25 @@ def routeJoin():
 		return ENCODER.get_public_data(), 200
 	
 	lockedStatus = secretsvault.InspectDataForKeys(CONFIG_STORAGE)
-	whitelisted =_is_whitelisted(request)
-	if lockedStatus == None and whitelisted == True:
+	if lockedStatus == None and _allow_public_key_access(request) == True:
 		return ENCODER.get_public_data(), 200
 
-	return f"ERROR: System deflect!", 405
+	return f"ERROR: System disconnected!", 405
 
 @app.route('/info', methods=['GET'])
 def routeInfo():
-	whitelisted = _is_whitelisted(request)
+	allowed = _allow_public_key_access(request)
 
 	info = {
 		"version" : VERSION,
 		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE),
 		"remote_addr" : request.remote_addr,
-		"allowed" : whitelisted,
+		"allowed" : allowed,
 		"maxq" : MAX_REQUEST_SIZE,
 		"mode" : VAULT_SERVER_MODE,
 	}
 
-	if VAULT_PUBLISH_KEY or whitelisted:
+	if VAULT_PUBLISH_KEY or allowed:
 		info.update(ENCODER.get_public_data())
 	return info, 200
 
