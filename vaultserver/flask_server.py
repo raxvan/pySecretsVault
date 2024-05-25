@@ -4,6 +4,7 @@ import re
 import sys
 import json
 import secretsvault
+import subprocess
 from ipaddress import ip_address, ip_network
 
 VERSION = os.environ.get("VAULT_VERSION", "0.0.0")
@@ -14,6 +15,7 @@ CONFIG_FOLDER = os.environ.get("VAULT_CONFIG_DIR", '/vault/config')
 DATA_FOLDER = os.environ.get("VAULT_DATA_DIR", '/vault/data')
 VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
 VAULT_PUBLISH_KEY = os.environ.get("VAULT_PUBLISH_KEY", "FALSE").upper() == "TRUE"
+VAULT_SUBNET_PUBLISH_KEY = os.environ.get("VAULT_SUBNET_PUBLISH_KEY", "FALSE").upper() == "TRUE"
 ################################################################################################################
 
 CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
@@ -23,10 +25,15 @@ ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be T
 if ENCODER == None:
 	raise Exception("Failed to create encoder!")
 
-NETWORK_SUBNET = None
-VAULT_SECURE_SUBNET = os.environ.get("VAULT_SECURE_SUBNET", None)
-if VAULT_SECURE_SUBNET != None:
-	NETWORK_SUBNET = ip_network('172.17.0.0/16')
+def get_subnet():
+	result = subprocess.run(['ip', '-j', 'addr', 'show', 'eth0'], capture_output=True, text=True)
+	ip_data = json.loads(result.stdout)
+	subnet = ip_data[0]['addr_info'][0]['local'] + '/' + ip_data[0]['addr_info'][0]['prefixlen']
+	return subnet
+
+ALLOWED_NETWORK_SUBNET = None
+if VAULT_SUBNET_PUBLISH_KEY == True:
+	ALLOWED_NETWORK_SUBNET = ip_network(get_subnet())
 
 ################################################################################################################
 
@@ -142,9 +149,9 @@ def routeExecute():
 		return f"ERROR: Systems wispered error!", 404
 
 def _allow_public_key_access(rq):
-	if NETWORK_SUBNET == None:
+	if ALLOWED_NETWORK_SUBNET == None:
 		return True
-	if ip_address(rq.remote_addr) in NETWORK_SUBNET:
+	if ip_address(rq.remote_addr) in ALLOWED_NETWORK_SUBNET:
 		return True
 	return False
 
