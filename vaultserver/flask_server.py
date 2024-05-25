@@ -177,6 +177,7 @@ def routeInfo():
 		"allowed" : allowed,
 		"maxq" : MAX_REQUEST_SIZE,
 		"mode" : VAULT_SERVER_MODE,
+		"subnet" : ALLOWED_NETWORK_SUBNET,
 	}
 
 	if VAULT_PUBLISH_KEY or allowed:
