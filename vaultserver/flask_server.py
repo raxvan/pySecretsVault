@@ -148,27 +148,26 @@ def routeExecute():
 		print(f"Execute error: {e}", file=sys.stderr)
 		return f"ERROR: Systems wispered error!", 404
 
-def _allow_public_key_access(rq):
-	if ALLOWED_NETWORK_SUBNET == None:
+def _allow_access(rq):
+	if VAULT_PUBLISH_KEY == True:
 		return True
+	if ALLOWED_NETWORK_SUBNET == None:
+		return False
 	if ip_address(rq.remote_addr) in ALLOWED_NETWORK_SUBNET:
 		return True
 	return False
 
 @app.route('/join', methods=['GET'])
 def routeJoin():
-	if VAULT_PUBLISH_KEY == True:
-		return ENCODER.get_public_data(), 200
-	
 	lockedStatus = secretsvault.InspectDataForKeys(CONFIG_STORAGE)
-	if lockedStatus == None and _allow_public_key_access(request) == True:
+	if lockedStatus == None and _allow_access(request) == True:
 		return ENCODER.get_public_data(), 200
 
 	return f"ERROR: System disconnected!", 405
 
 @app.route('/info', methods=['GET'])
 def routeInfo():
-	allowed = _allow_public_key_access(request)
+	allowed = _allow_access(request)
 
 	info = {
 		"version" : VERSION,
@@ -177,11 +176,7 @@ def routeInfo():
 		"allowed" : allowed,
 		"maxq" : MAX_REQUEST_SIZE,
 		"mode" : VAULT_SERVER_MODE,
-		"subnet" : ALLOWED_NETWORK_SUBNET,
 	}
-
-	if VAULT_PUBLISH_KEY or allowed:
-		info.update(ENCODER.get_public_data())
 	return info, 200
 
 @app.route('/unlock', methods=['GET'])
