@@ -13,6 +13,16 @@ def CreateVaultImpl(config):
 	if url != None:
 		return RemoteVault(url, config)
 
+def GetVaultInfo(url):
+	amap = ApiMap(url)
+	try:
+		response = requests.get(amap.apiInfo, timeout=10)
+		if response.status_code != 200:
+			raise Exception(f"Request {amap.apiInfo} failed with code {response.status_code}:\n{response.text}");
+		content = response.text
+		return json.loads(content)
+	except Exception as e:
+		raise Exception(f"Request {amap.apiInfo} failed!\n{str(e)}")
 
 class ApiMap():
 	def __init__(self, url):

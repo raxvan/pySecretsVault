@@ -21,6 +21,9 @@ def _read_desc(basedir, name):
 def open_vault(basedir):
 	return secretsvault.OpenVault()
 
+def vault_info(url):
+	return secretsvault.VaultInfo(url)
+
 def _do_set(basedir, key, value):
 
 	vault = open_vault(basedir)
@@ -127,11 +130,15 @@ def _do_cat(basedir, path):
 	content = secretsvault.vault_decode_file(_get_file_password(vault, filename), file, None)
 	print(content)
 
-def _do_info(basedir):
-	vault = open_vault(basedir)
-	inf = vault.info()
-	for k,v in inf.items():
-		print(k.rjust(32) + " | " + str(v))
+def _do_info(basedir, url):
+	furl = os.environ.get("VAULT_URL", url)
+	if furl == "":
+		furl = "http://127.0.0.1:" + os.environ.get("VAULT_PORT", 5000)
+
+	inf = vault_info(furl)
+	inf['url'] = furl
+	content = json.dumps(inf, indent = 2)
+	print(content)
 
 def _do_main(args):
 	basedir = os.getcwd()
@@ -144,7 +151,7 @@ def _do_main(args):
 	elif acc == "list":
 		_do_list(basedir, args.regex)
 	elif acc == "info":
-		_do_info(basedir)
+		_do_info(basedir, args.url)
 	elif acc == "edit":
 		_do_edit(basedir, args.path)
 	elif acc == "cat":
@@ -194,6 +201,7 @@ def main():
 
 	_vault_info = subparsers.add_parser('info', description='Show vault information.')
 	_vault_info.set_defaults(action='info')
+	_vault_info.add_argument('url', nargs='?', default="", help='The vault url to query the info from')
 
 	
 	
