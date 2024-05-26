@@ -9,6 +9,7 @@ from .vault_encoder import InspectDataForKeys
 from .vault_utils import vault_encode_file
 from .vault_utils import vault_decode_file
 
+
 def CreateEncoder(storage, createNew):
 	return CreateEncoderWith(storage, createNew)
 
@@ -51,12 +52,12 @@ def WaitForPublicKey(data):
 	ConfigWaitForPublicKey(data)
 
 def details():
+	from ._version import __version__
 	import cryptography
 
 	v = {
-		"version" : "0.0.1",
-		"url" : "https://github.com/raxvan/pysecrets-vault",
 		"cryptography-version" : cryptography.__version__,
+		"version" : __version__,
 	}
 
 	return v

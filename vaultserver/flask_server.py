@@ -178,6 +178,7 @@ def routeInfo():
 		"maxq" : MAX_REQUEST_SIZE,
 		"mode" : VAULT_SERVER_MODE,
 		"visibility" : "private",
+		"server" : secretsvault.details(),
 	}
 	if VAULT_PUBLISH_KEY == True:
 		info['visibility'] = "public"

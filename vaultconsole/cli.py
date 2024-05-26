@@ -137,6 +137,9 @@ def _do_info(basedir, url):
 
 	inf = vault_info(furl)
 	inf['url'] = furl
+
+	inf['client'] = secretsvault.details()
+
 	content = json.dumps(inf, indent = 2)
 	print(content)
 

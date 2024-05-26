@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
+directory = os.path.dirname(os.path.abspath(__file__))
+exec(open(os.path.join(directory, 'secretsvault', '_version.py')).read())
+
 setup(
     name = "pysecrets-vault",
-    version = "0.0.1",
+    version = __version__,
     description = "The package handles a key value map with encoding for values. Siuted for secrets providers",
     long_description = open('README.md').read(),
     long_description_content_type = 'text/markdown',
