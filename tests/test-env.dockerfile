@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
 	nano
 
 RUN pip3 install --upgrade pip && pip3 install \
-	pudb
+	pudb \
+	netifaces
 
 ENV VAULT_INSTALL_DIR=/repo
 ENV VAULT_SERVER_SCALING=4
@@ -20,3 +21,4 @@ ENV VAULT_DATA_DIR=/vault/data
 ENV VAULT_SERVER_MODE=debug
 ENV VAULT_PUBLISH_KEY=TRUE
 ENV VAULT_STARTUP_TIME=2
+ENV VAULT_SUBNET_PUBLISH_KEY=TRUE

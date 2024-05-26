@@ -42,9 +42,13 @@ class RemoteVault(ApiMap):
 		#init
 		self.vaultEncoder = CreateEncoderWith(desc, False)
 		if self.vaultEncoder == None:
-			self.vaultEncoder = CreateEncoderWith(self._join(), False)
+			join_result = self._join()
+			self.vaultEncoder = CreateEncoderWith(join_result, False)
 			if (self.vaultEncoder == None):
-				raise Exception(f"Failed to create vault encoder for {url}. No public key provided!")
+				message = f"Failed to create vault encoder for {url}\n"
+				message += f"Data: {desc}\n"
+				message += f"Join: {join_result}\n"
+				raise Exception(message)
 
 		self.upstreamEncoder = CreateNewEncoder()
 		self.publicData = self.upstreamEncoder.get_public_data()
@@ -67,7 +71,7 @@ class RemoteVault(ApiMap):
 				content = response.text
 				return json.loads(content)
 		except Exception as e:
-			pass
+			return e
 		return {}
 
 	def _info(self):

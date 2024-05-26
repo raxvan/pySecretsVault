@@ -5,6 +5,7 @@ import sys
 import json
 import secretsvault
 import subprocess
+import netifaces as ni
 from ipaddress import ip_address, ip_network
 
 VERSION = os.environ.get("VAULT_VERSION", "0.0.0")
@@ -25,15 +26,15 @@ ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be T
 if ENCODER == None:
 	raise Exception("Failed to create encoder!")
 
-def get_subnet():
-	result = subprocess.run(['ip', '-j', 'addr', 'show', 'eth0'], capture_output=True, text=True)
-	ip_data = json.loads(result.stdout)
-	subnet = ip_data[0]['addr_info'][0]['local'] + '/' + ip_data[0]['addr_info'][0]['prefixlen']
-	return subnet
+def get_subnet(interface='eth0'):
+	addr = ni.ifaddresses(interface)[ni.AF_INET][0]
+	ip_info = f"{addr['addr']}/{addr['netmask']}"
+	network = ip_network(ip_info, strict=False)
+	return network
 
 ALLOWED_NETWORK_SUBNET = None
 if VAULT_SUBNET_PUBLISH_KEY == True:
-	ALLOWED_NETWORK_SUBNET = ip_network(get_subnet())
+	ALLOWED_NETWORK_SUBNET = get_subnet()
 
 ################################################################################################################
 
@@ -176,7 +177,13 @@ def routeInfo():
 		"allowed" : allowed,
 		"maxq" : MAX_REQUEST_SIZE,
 		"mode" : VAULT_SERVER_MODE,
+		"visibility" : "private",
 	}
+	if VAULT_PUBLISH_KEY == True:
+		info['visibility'] = "public"
+	if ALLOWED_NETWORK_SUBNET != True:
+		info['visibility'] = "protected"
+
 	return info, 200
 
 @app.route('/unlock', methods=['GET'])
