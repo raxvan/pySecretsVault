@@ -12,9 +12,9 @@ rm test_file ||:
 
 echo "starting server:"
 
-export VAULT_SERVER_MODE=local
-/bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
+export VAULT_SERVER_MODE=debug
 #/bin/sh /repo/vaultserver/entrypoint.sh
+/bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
 
 sleep $VAULT_STARTUP_TIME
 sleep 5
@@ -22,6 +22,8 @@ sleep 5
 cd /repo/tests
 
 python3 /repo/tests/main_tests.py
+
+echo -----------------------------------------------------------
 
 export VAULT_URL=http://127.0.0.1:5000
 echo "INFO:"

@@ -45,6 +45,8 @@ fi
 
 if [ "$VAULT_SERVER_MODE" = "debug" ]; then
     echo "VAULT: starting server in debug mode"
+    python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
+    python3 $VAULT_INSTALL_DIR/vaultserver/config_destroy.py $VAULT_STARTUP_TIME $VAULT_CONFIG_DIR &
     python3 flask_server.py
     #flask --app flask_server run
 else
