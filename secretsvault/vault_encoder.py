@@ -118,14 +118,12 @@ class EncoderImpl():
 			key_bytes
 		)
 
-	def get_public_data(self) -> str:
+	def get_public_key(self) -> str:
 		pb = self.publicKey.public_bytes(
 			encoding=serialization.Encoding.DER,
 			format=serialization.PublicFormat.SubjectPublicKeyInfo
 		)
-		return {
-			_public_key : base64.b64encode(pb).decode('ascii')
-		}
+		return _public_key , base64.b64encode(pb).decode('ascii')
 
 	def canDecode(self):
 		return self.privateKey != None

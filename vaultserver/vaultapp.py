@@ -8,34 +8,32 @@ import subprocess
 import netifaces as ni
 from ipaddress import ip_address, ip_network
 
-VERSION = os.environ.get("VAULT_VERSION", "0.0.0")
-HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
-PORT=int(os.environ.get("VAULT_PORT", "5000"))
 MAX_REQUEST_SIZE = int(os.environ.get("VAULT_MAX_REQUEST_SIZE", str(1024 * 1024)))
 CONFIG_FOLDER = os.environ.get("VAULT_CONFIG_DIR", '/vault/config')
 DATA_FOLDER = os.environ.get("VAULT_DATA_DIR", '/vault/data')
-VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
-VAULT_PUBLISH_KEY = os.environ.get("VAULT_PUBLISH_KEY", "FALSE").upper() == "TRUE"
-VAULT_SUBNET_PUBLISH_KEY = os.environ.get("VAULT_SUBNET_PUBLISH_KEY", "FALSE").upper() == "TRUE"
+NAME = os.environ.get("VAULT_NAME", 'va')
+
+VAULT_PUBLIC_ACCESS = os.environ.get("VAULT_PUBLIC_ACCESS", "")
 ################################################################################################################
-
-CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
-DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
-
-ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be True
-if ENCODER == None:
-	raise Exception("Failed to create encoder!")
-
-def get_subnet(interface='eth0'):
+def get_allowed_network():
+	if VAULT_PUBLIC_ACCESS != "subnet":
+		return None
+	interface = eth0
 	addr = ni.ifaddresses(interface)[ni.AF_INET][0]
 	ip_info = f"{addr['addr']}/{addr['netmask']}"
 	network = ip_network(ip_info, strict=False)
 	return network
 
-ALLOWED_NETWORK_SUBNET = None
-if VAULT_SUBNET_PUBLISH_KEY == True:
-	ALLOWED_NETWORK_SUBNET = get_subnet()
+################################################################################################################
 
+DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
+CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
+
+ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be True
+if ENCODER == None:
+	raise Exception("Failed to create encoder!")
+
+ALLOWED_NETWORK_SUBNET = get_allowed_network()
 ################################################################################################################
 
 app = Flask(__name__)
@@ -150,7 +148,7 @@ def routeExecute():
 		return f"ERROR: Systems wispered error!", 404
 
 def _allow_access(rq):
-	if VAULT_PUBLISH_KEY == True:
+	if VAULT_PUBLIC_ACCESS == "enable":
 		return True
 	if ALLOWED_NETWORK_SUBNET == None:
 		return False
@@ -162,7 +160,12 @@ def _allow_access(rq):
 def routeJoin():
 	lockedStatus = secretsvault.InspectDataForKeys(CONFIG_STORAGE)
 	if lockedStatus == None and _allow_access(request) == True:
-		return ENCODER.get_public_data(), 200
+		k,v = ENCODER.get_public_key()
+
+		return {
+			"name" : NAME,
+			k : v,
+		}, 200
 
 	return f"ERROR: System disconnected!", 405
 
@@ -171,19 +174,15 @@ def routeInfo():
 	allowed = _allow_access(request)
 
 	info = {
-		"version" : VERSION,
 		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE),
 		"remote_addr" : request.remote_addr,
 		"allowed" : allowed,
 		"maxq" : MAX_REQUEST_SIZE,
-		"mode" : VAULT_SERVER_MODE,
-		"visibility" : "private",
+		"mode" : os.environ.get("VAULT_SERVER_MODE", ""),
+		"access" : VAULT_PUBLIC_ACCESS,
+		"name" : NAME,
 		"server" : secretsvault.details(),
 	}
-	if VAULT_PUBLISH_KEY == True:
-		info['visibility'] = "public"
-	if ALLOWED_NETWORK_SUBNET != True:
-		info['visibility'] = "protected"
 
 	return info, 200
 
@@ -195,6 +194,10 @@ def routeUnlock():
 ################################################################################################################
 
 if __name__ == '__main__':
+	
+	HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
+	PORT=int(os.environ.get("VAULT_PORT", "5000"))
+	VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
 	
 	print(f">> Server mode [{VAULT_SERVER_MODE}] ")
 

@@ -13,17 +13,6 @@ def CreateVaultImpl(config):
 	if url != None:
 		return RemoteVault(url, config)
 
-def GetVaultInfo(url):
-	amap = ApiMap(url)
-	try:
-		response = requests.get(amap.apiInfo, timeout=10)
-		if response.status_code != 200:
-			raise Exception(f"Request {amap.apiInfo} failed with code {response.status_code}:\n{response.text}");
-		content = response.text
-		return json.loads(content)
-	except Exception as e:
-		raise Exception(f"Request {amap.apiInfo} failed!\n{str(e)}")
-
 class ApiMap():
 	def __init__(self, url):
 		self.apiExec = f"{url}/exc"
@@ -40,29 +29,18 @@ class RemoteVault(ApiMap):
 		self.timeout = desc.get("timeout", _timeout)
 
 		#init
-		self.vaultEncoder = CreateEncoderWith(desc, False)
+		self.vaultName = ""
+		self.vaultEncoder = None
+
+		self._init(desc)
 		if self.vaultEncoder == None:
-			join_result = self._join()
-			self.vaultEncoder = CreateEncoderWith(join_result, False)
-			if (self.vaultEncoder == None):
-				message = f"Failed to create vault encoder for {url}\n"
-				message += f"Data: {desc}\n"
-				message += f"Join: {join_result}\n"
-				raise Exception(message)
+			self._init(self._join())
 
 		self.upstreamEncoder = CreateNewEncoder()
-		self.publicData = self.upstreamEncoder.get_public_data()
-
-	def unlock(self):
-		try:
-			response = requests.get(self.apiUnlock, timeout=self.timeout)
-			if response.status_code != 200:
-				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
-
-		except Exception as e:
-			raise Exception(f"Request {self.apiUnlock} failed!\n{str(e)}")
-
-		return True
+		kn, kv = self.upstreamEncoder.get_public_key()
+		self.publicKey = {
+			kn : kv
+		} 
 
 	def _join(self):
 		try:
@@ -74,6 +52,10 @@ class RemoteVault(ApiMap):
 			return e
 		return {}
 
+	def _init(self, desc):
+		self.vaultName = desc.get("name", "Unnamed")
+		self.vaultEncoder = CreateEncoderWith(desc, False)
+
 	def _info(self):
 		try:
 			response = requests.get(self.apiInfo, timeout=self.timeout)
@@ -84,15 +66,37 @@ class RemoteVault(ApiMap):
 		except Exception as e:
 			raise Exception(f"Request {self.apiInfo} failed!\n{str(e)}")
 
+	def ready(self):
+		return self.vaultEncoder != None
+
+	def unlock(self):
+		try:
+			response = requests.get(self.apiUnlock, timeout=self.timeout)
+			if response.status_code != 200:
+				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
+
+		except Exception as e:
+			raise Exception(f"Request {self.apiUnlock} failed!\n{str(e)}")
+
+		self._init(self._join())
+
+		return True
+
 	def info(self):
 		result = self._info()
-		result["url"] = self.url
-		result["timeout"] = self.timeout
+		result["connection"] = {
+			"url" : self.url,
+			"timeout" : self.timeout,
+			"ready" : self.ready(),
+		}
 		return result
 
 	def _execute(self, operation):
 
-		operation.update(self.publicData)
+		operation.update(self.publicKey)
+
+		if (self.vaultEncoder == None):
+			raise Exception(f"Vault `{self.vaultName}` is not ready! -> {self.url}")
 
 		packet = self.vaultEncoder.encodeStr(json.dumps(operation))
 

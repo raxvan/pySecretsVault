@@ -37,15 +37,12 @@ def OpenVault():
 	if v == None:
 		raise Exception("Could not load vault!")
 
-	items = v.query(["url", "PublicKey"])
-	if len(items) == 2:
-		return CreateVault(items)
+	if v.ready():
+		items = v.query(["url", "PublicKey"])
+		if len(items) == 2:
+			return CreateVault(items)
 
 	return v
-
-def VaultInfo(url):
-	from .vault_client import GetVaultInfo
-	return GetVaultInfo(url)
 
 def WaitForPublicKey(data):
 	from .vault_encoder import ConfigWaitForPublicKey

@@ -39,6 +39,7 @@ def test_vault():
 	vaultConfig = {
 		"url":"http://127.0.0.1:5000",
 	}
+	
 	v = secretsvault.CreateVault(vaultConfig)
 
 	inf1 = v.info()

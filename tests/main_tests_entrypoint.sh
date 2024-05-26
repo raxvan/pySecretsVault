@@ -9,15 +9,18 @@ rm -rf ./data ||:
 rm -rf ./config ||:
 rm test_file ||:
 
-
-echo "starting server:"
+echo "Starting server (5sec)..."
 
 export VAULT_SERVER_MODE=debug
 #/bin/sh /repo/vaultserver/entrypoint.sh
 /bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
 
-sleep $VAULT_STARTUP_TIME
 sleep 5
+export VAULT_URL=http://127.0.0.1:5000
+
+vault unlock
+
+echo -----------------------------------------------------------
 
 cd /repo/tests
 
@@ -25,7 +28,6 @@ python3 /repo/tests/main_tests.py
 
 echo -----------------------------------------------------------
 
-export VAULT_URL=http://127.0.0.1:5000
 echo "INFO:"
 vault info
 echo "LIST:"

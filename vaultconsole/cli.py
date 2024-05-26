@@ -21,9 +21,6 @@ def _read_desc(basedir, name):
 def open_vault(basedir):
 	return secretsvault.OpenVault()
 
-def vault_info(url):
-	return secretsvault.VaultInfo(url)
-
 def _do_set(basedir, key, value):
 
 	vault = open_vault(basedir)
@@ -131,17 +128,14 @@ def _do_cat(basedir, path):
 	print(content)
 
 def _do_info(basedir, url):
-	furl = os.environ.get("VAULT_URL", url)
-	if furl == "":
-		furl = "http://127.0.0.1:" + os.environ.get("VAULT_PORT", 5000)
-
-	inf = vault_info(furl)
-	inf['url'] = furl
-
-	inf['client'] = secretsvault.details()
-
+	vault = open_vault(basedir)
+	inf = vault.info()
 	content = json.dumps(inf, indent = 2)
 	print(content)
+
+def _do_unlock(basedir):
+	vault = open_vault(basedir)
+	vault.unlock()
 
 def _do_main(args):
 	basedir = os.getcwd()
@@ -163,7 +157,8 @@ def _do_main(args):
 		_do_load(basedir, args.path)
 	elif acc == "find":
 		_do_find(basedir, args.regex)
-
+	elif acc == "unlock":
+		_do_unlock(basedir)
 	os.chdir(basedir)
 
 def main():
@@ -206,6 +201,8 @@ def main():
 	_vault_info.set_defaults(action='info')
 	_vault_info.add_argument('url', nargs='?', default="", help='The vault url to query the info from')
 
+	_vault_unlock = subparsers.add_parser('unlock', description='Unlock vault for usage.')
+	_vault_unlock.set_defaults(action='unlock')
 	
 	
 	args = parser.parse_args(user_arguments)
