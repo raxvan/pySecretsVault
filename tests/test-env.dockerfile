@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip3 install --upgrade pip && pip3 install \
 	pudb \
+	flask \
+	gunicorn \
 	netifaces
 
 ENV VAULT_INSTALL_DIR=/repo

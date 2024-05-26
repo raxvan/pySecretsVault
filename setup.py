@@ -9,8 +9,6 @@ setup(
     packages = find_packages(),
     install_requires = [
         "cryptography",
-        "gunicorn",
-        "flask",
         "requests"
     ],
     python_requires = '>=3.6',
