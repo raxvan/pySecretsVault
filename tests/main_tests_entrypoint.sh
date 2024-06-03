@@ -2,23 +2,33 @@
 set -e -o pipefail
 
 cd /repo
-pip install .
 
 cd /repo/tests/VaultTestVolume
 rm -rf ./data ||:
 rm -rf ./config ||:
 rm test_file ||:
 
-echo "Starting server (5sec)..."
+cd /repo/tests/VaultTestVolume
 
-export VAULT_SERVER_MODE=debug
+mkdir -p config
+mkdir -p data
+
+cd /repo
+pip3 install .
+
+echo "Starting server (idle: 5 sec)..."
+
+export VAULT_SERVER_MODE=live
+export VAULT_STARTUP_TIME=2
+
+cd /repo/tests/VaultTestVolume/config
+vault config-create keys
+
 #/bin/sh /repo/vaultserver/entrypoint.sh
 /bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &
 
-sleep 5
+sleep 3
 export VAULT_URL=http://127.0.0.1:5000
-
-vault unlock
 
 echo -----------------------------------------------------------
 

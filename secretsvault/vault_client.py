@@ -3,7 +3,7 @@ import requests
 import json
 import os
 
-from .vault_encoder import CreateEncoderWith
+from .vault_encoder import CreateEncoder
 from .vault_encoder import CreateNewEncoder
 
 _timeout = 2 #2 sec
@@ -18,7 +18,6 @@ class ApiMap():
 		self.apiExec = f"{url}/exc"
 		self.apiJoin = f"{url}/join"
 		self.apiInfo = f"{url}/info"
-		self.apiUnlock = f"{url}/unlock"
 		self.url = url
 
 class RemoteVault(ApiMap):
@@ -49,12 +48,13 @@ class RemoteVault(ApiMap):
 				content = response.text
 				return json.loads(content)
 		except Exception as e:
-			return e
-		return {}
+			raise Exception(f"Request {self.apiJoin} failed!\n{str(e)}")
+
+		raise Exception(f"Request {self.apiJoin} returned invalid status({response.status_code})!")
 
 	def _init(self, desc):
-		self.vaultName = desc.get("name", "Unnamed")
-		self.vaultEncoder = CreateEncoderWith(desc, False)
+		self.vaultName = desc.get("name", "undefined")
+		self.vaultEncoder = CreateEncoder(desc, False)
 
 	def _info(self):
 		try:
@@ -68,19 +68,6 @@ class RemoteVault(ApiMap):
 
 	def ready(self):
 		return self.vaultEncoder != None
-
-	def unlock(self):
-		try:
-			response = requests.get(self.apiUnlock, timeout=self.timeout)
-			if response.status_code != 200:
-				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
-
-		except Exception as e:
-			raise Exception(f"Request {self.apiUnlock} failed!\n{str(e)}")
-
-		self._init(self._join())
-
-		return True
 
 	def info(self):
 		result = self._info()

@@ -3,20 +3,18 @@ import os
 import sys
 import base64
 
-from .vault_encoder import CreateEncoderWith
+from .vault_encoder import CreateNewEncoder
+from .vault_encoder import CreateEncoder
 from .vault_encoder import InspectDataForKeys
 
 from .vault_utils import vault_encode_file
 from .vault_utils import vault_decode_file
+from .vault_utils import vault_write_encoded_file
 
-
-def CreateEncoder(storage, createNew):
-	return CreateEncoderWith(storage, createNew)
 
 def CreateFileStorage(userPath, isbinary):
 	from .vault_storage import FileStorageMap
 	return FileStorageMap(userPath, isbinary)
-
 
 def CreateVault(desc):
 	from .vault_client import CreateVaultImpl

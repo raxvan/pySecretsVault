@@ -6,12 +6,15 @@ import json
 import secretsvault
 import subprocess
 import netifaces as ni
+
+from shared_memory_dict import SharedMemoryDict
+
 from ipaddress import ip_address, ip_network
 
 MAX_REQUEST_SIZE = int(os.environ.get("VAULT_MAX_REQUEST_SIZE", str(1024 * 1024)))
-CONFIG_FOLDER = os.environ.get("VAULT_CONFIG_DIR", '/vault/config')
 DATA_FOLDER = os.environ.get("VAULT_DATA_DIR", '/vault/data')
-NAME = os.environ.get("VAULT_NAME", 'va')
+NAME = os.environ.get("VAULT_NAME", 'vn')
+MODE = os.environ.get("VAULT_SERVER_MODE", "")
 
 VAULT_PUBLIC_ACCESS = os.environ.get("VAULT_PUBLIC_ACCESS", "")
 ################################################################################################################
@@ -27,13 +30,20 @@ def get_allowed_network():
 ################################################################################################################
 
 DATA_STORAGE = secretsvault.CreateFileStorage(DATA_FOLDER, True)
-CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
 
+CONFIG_STORAGE = SharedMemoryDict(name=f'{NAME}Config', size=2048)
+
+STATUS = secretsvault.InspectDataForKeys(CONFIG_STORAGE)
 ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be True
+
 if ENCODER == None:
 	raise Exception("Failed to create encoder!")
 
+#CONFIG_STORAGE.shm.close()
+#CONFIG_STORAGE.shm.unlink()
+
 ALLOWED_NETWORK_SUBNET = get_allowed_network()
+
 ################################################################################################################
 
 app = Flask(__name__)
@@ -114,9 +124,6 @@ def executePacket(packet):
 
 @app.route('/exc', methods=['POST']) 
 def routeExecute():
-	if secretsvault.InspectDataForKeys(CONFIG_STORAGE) != None:
-		return "ERRPR: Systems locked!", 300
-
 	content_length = request.headers.get('Content-Length')
 	if content_length is None:
 		return "ERROR: Invalid request!", 400
@@ -158,8 +165,7 @@ def _allow_access(rq):
 
 @app.route('/join', methods=['GET'])
 def routeJoin():
-	lockedStatus = secretsvault.InspectDataForKeys(CONFIG_STORAGE)
-	if lockedStatus == None and _allow_access(request) == True:
+	if _allow_access(request) == True:
 		k,v = ENCODER.get_public_key()
 
 		return {
@@ -172,13 +178,13 @@ def routeJoin():
 @app.route('/info', methods=['GET'])
 def routeInfo():
 	allowed = _allow_access(request)
-
+	
 	info = {
-		"lockStatus" : secretsvault.InspectDataForKeys(CONFIG_STORAGE),
+		"state" : STATUS,
 		"remote_addr" : request.remote_addr,
 		"allowed" : allowed,
 		"maxq" : MAX_REQUEST_SIZE,
-		"mode" : os.environ.get("VAULT_SERVER_MODE", ""),
+		"mode" : MODE,
 		"access" : VAULT_PUBLIC_ACCESS,
 		"name" : NAME,
 		"server" : secretsvault.details(),
@@ -186,22 +192,16 @@ def routeInfo():
 
 	return info, 200
 
-@app.route('/unlock', methods=['GET'])
-def routeUnlock():
-	CONFIG_STORAGE.clear()
-	return "OK", 200
-
 ################################################################################################################
 
 if __name__ == '__main__':
 	
 	HOST=os.environ.get("VAULT_HOST", "0.0.0.0")
 	PORT=int(os.environ.get("VAULT_PORT", "5000"))
-	VAULT_SERVER_MODE = os.environ.get("VAULT_SERVER_MODE", "")
-	
-	print(f">> Server mode [{VAULT_SERVER_MODE}] ")
 
-	_debug = True if VAULT_SERVER_MODE == "debug" else False
+	print(f">> Server mode [{MODE}] ")
+
+	_debug = True if MODE == "debug" else False
 
 	app.run(
 		debug=_debug,

@@ -102,6 +102,13 @@ def vault_encode_file(password, text_file_path, encoded_file_path):
 	with open(encoded_file_path, 'wb') as enc_file:
 		enc_file.write(encrypted)
 
+def vault_write_encoded_file(password, content, encoded_file_path):
+	key = _generate_key(password)
+	fernet = Fernet(key)
+	encrypted = fernet.encrypt(content.encode("utf-8"))
+	with open(encoded_file_path, 'wb') as enc_file:
+		enc_file.write(encrypted)
+
 def vault_decode_file(password, encoded_file_path, text_file_path):
 	key = _generate_key(password)
 	fernet = Fernet(key)

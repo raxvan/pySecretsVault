@@ -133,9 +133,31 @@ def _do_info(basedir, url):
 	content = json.dumps(inf, indent = 2)
 	print(content)
 
-def _do_unlock(basedir):
-	vault = open_vault(basedir)
-	vault.unlock()
+def _do_config_create(basedir, name):
+	import getpass
+	key = getpass.getpass(f"Secret:")
+	ENCODER = secretsvault.CreateNewEncoder()
+	pn, pk = ENCODER.get_private_key()
+	path = os.path.join(basedir, name)
+	secretsvault.vault_write_encoded_file(key, pk, path)
+
+	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
+	ENCODER.serialize(CONFIG_STORAGE)
+
+	print(f"Created: {path}")
+
+def _do_config_decode(basedir, name):
+	import getpass
+	key = getpass.getpass(f"Secret:")
+	ENCODER = secretsvault.CreateNewEncoder()
+	pn, pk = ENCODER.get_private_key()
+	path = os.path.join(basedir, name)
+	secretsvault.vault_write_encoded_file(key, pk, path)
+
+	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
+	ENCODER.serialize(CONFIG_STORAGE)
+
+	print(f"Created: {path}")
 
 def _do_main(args):
 	basedir = os.getcwd()
@@ -157,8 +179,11 @@ def _do_main(args):
 		_do_load(basedir, args.path)
 	elif acc == "find":
 		_do_find(basedir, args.regex)
-	elif acc == "unlock":
-		_do_unlock(basedir)
+	elif acc == "config-create":
+		_do_config_create(basedir, args.name)
+	elif acc == "config-decode":
+		_do_config_decode(basedir, args.name)
+
 	os.chdir(basedir)
 
 def main():
@@ -201,9 +226,12 @@ def main():
 	_vault_info.set_defaults(action='info')
 	_vault_info.add_argument('url', nargs='?', default="", help='The vault url to query the info from')
 
-	_vault_unlock = subparsers.add_parser('unlock', description='Unlock vault for usage.')
-	_vault_unlock.set_defaults(action='unlock')
-	
+	_vault_config_create = subparsers.add_parser('config-create', description='Create vault config')
+	_vault_config_create.add_argument('name', help='The name of the encoded valut config file.')
+	_vault_config_create.set_defaults(action='config-create')
+	_vault_config_decode = subparsers.add_parser('config-decode', description='Create vault config')
+	_vault_config_decode.add_argument('name', help='The name of the encoded valut config file.')
+	_vault_config_decode.set_defaults(action='config-decode')
 	
 	args = parser.parse_args(user_arguments)
 

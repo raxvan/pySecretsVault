@@ -11,7 +11,8 @@ RUN pip3 install --upgrade pip && pip3 install \
 	requests \
 	flask \
 	gunicorn \
-	netifaces
+	netifaces \
+	shared-memory-dict
 
 ENV VAULT_INSTALL_DIR=/repo
 ENV VAULT_SERVER_SCALING=4

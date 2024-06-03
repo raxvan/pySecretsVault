@@ -21,7 +21,7 @@ _private_key = "PrivateKey"
 
 ################################################################################################
 
-def CreateEncoderWith(data, createNew):
+def CreateEncoder(data, createNew):
 	decode_key = data.get(_private_key, None)
 	if decode_key != None:
 		result = EncoderImpl()
@@ -123,7 +123,15 @@ class EncoderImpl():
 			encoding=serialization.Encoding.DER,
 			format=serialization.PublicFormat.SubjectPublicKeyInfo
 		)
-		return _public_key , base64.b64encode(pb).decode('ascii')
+		return _public_key, base64.b64encode(pb).decode('ascii')
+
+	def get_private_key(self) -> str:
+		pb = self.privateKey.private_bytes(
+			encoding=serialization.Encoding.DER,
+			format=serialization.PrivateFormat.PKCS8,
+			encryption_algorithm=serialization.NoEncryption()
+		)
+		return _private_key, base64.b64encode(pb).decode('ascii')
 
 	def canDecode(self):
 		return self.privateKey != None

@@ -5,9 +5,6 @@ if [ -z "$VAULT_INSTALL_DIR" ]; then
     exit -1
 fi
 
-cd $VAULT_INSTALL_DIR
-pip3 install .
-
 cd $VAULT_INSTALL_DIR/vaultserver
 
 if [ -z "$VAULT_SERVER_MODE" ]; then
@@ -26,23 +23,20 @@ if [ -z "$VAULT_PORT" ]; then
     export VAULT_PORT=5000
 fi
 
-
-if [ "$VAULT_SERVER_MODE" = "install" ]; then
-    python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
+if [ -z "$VAULT_STARTUP_TIME" ]; then
+    export VAULT_STARTUP_TIME=2
 fi
 
-if [ "$VAULT_SERVER_MODE" = "revive" ]; then
-    python3 $VAULT_INSTALL_DIR/vaultserver/config_wait.py $VAULT_CONFIG_DIR
-fi
+python3 $VAULT_INSTALL_DIR/vaultserver/vaultconfig.py &
+
+echo "VAULT: Starting up with mode $VAULT_SERVER_MODE ..."
+sleep $VAULT_STARTUP_TIME
 
 if [ "$VAULT_SERVER_MODE" = "debug" ]; then
-    python3 $VAULT_INSTALL_DIR/vaultserver/config_create.py $VAULT_CONFIG_DIR
-    
-    echo "VAULT: starting server in debug mode"
     #flask --app vaultapp run
     python3 vaultapp.py
 else
-    echo "VAULT: starting server with scaling $VAULT_SERVER_SCALING"
+    echo "VAULT: Scaling $VAULT_SERVER_SCALING"
     gunicorn -w $VAULT_SERVER_SCALING -b $VAULT_HOST:$VAULT_PORT vaultapp:app
 fi
 
