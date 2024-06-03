@@ -12,7 +12,8 @@ setup(
     packages = find_packages(),
     install_requires = [
         "cryptography",
-        "requests"
+        "requests",
+        "shared-memory-dict"
     ],
     python_requires = '>=3.6',
     entry_points = {
