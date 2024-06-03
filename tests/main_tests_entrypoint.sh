@@ -18,10 +18,11 @@ pip3 install .
 
 echo "Starting server (idle: 5 sec)..."
 
-export VAULT_SERVER_MODE=live
+export VAULT_SERVER_MODE=debug
 export VAULT_STARTUP_TIME=2
 
 cd /repo/tests/VaultTestVolume/config
+
 vault config-create keys
 
 #/bin/sh /repo/vaultserver/entrypoint.sh
