@@ -18,10 +18,9 @@ MODE = os.environ.get("VAULT_SERVER_MODE", "")
 
 VAULT_PUBLIC_ACCESS = os.environ.get("VAULT_PUBLIC_ACCESS", "")
 ################################################################################################################
-def get_allowed_network():
+def get_allowed_network(interface = "eth0"):
 	if VAULT_PUBLIC_ACCESS != "subnet":
 		return None
-	interface = eth0
 	addr = ni.ifaddresses(interface)[ni.AF_INET][0]
 	ip_info = f"{addr['addr']}/{addr['netmask']}"
 	network = ip_network(ip_info, strict=False)
