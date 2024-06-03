@@ -23,8 +23,11 @@ export VAULT_STARTUP_TIME=2
 
 cd /repo/tests/VaultTestVolume/config
 
-vault config-create keys
-vault config-decode keys
+vault config-create
+
+echo "vault config-decode ..."
+read DECODE_COMMAND
+eval "$DECODE_COMMAND"
 
 #/bin/sh /repo/vaultserver/entrypoint.sh
 /bin/sh /repo/vaultserver/entrypoint.sh > /repo/tests/VaultTestVolume/output.log 2>&1 &

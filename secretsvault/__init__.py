@@ -9,7 +9,9 @@ from .vault_encoder import InspectDataForKeys
 
 from .vault_utils import vault_encode_file
 from .vault_utils import vault_decode_file
-from .vault_utils import vault_write_encoded_file
+from .vault_utils import vault_encode_str
+from .vault_utils import vault_decode_str
+
 
 
 def CreateFileStorage(userPath, isbinary):

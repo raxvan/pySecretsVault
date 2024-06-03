@@ -133,27 +133,18 @@ def _do_info(basedir, url):
 	content = json.dumps(inf, indent = 2)
 	print(content)
 
-def _do_config_create(basedir, name):
+def _do_config_create(basedir):
 	import getpass
 	key = getpass.getpass(f"Secret:")
 	ENCODER = secretsvault.CreateNewEncoder()
 	pn, pk = ENCODER.get_private_key()
-	path = os.path.join(basedir, name)
-	secretsvault.vault_write_encoded_file(key, json.dumps({pn : pk}), path)
+	content = json.dumps({pn : pk})
+	print(secretsvault.vault_encode_str(key, content))
 
-	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
-	ENCODER.serialize(CONFIG_STORAGE)
-
-	print(f"Created: {path}")
-
-def _do_config_decode(basedir, name):
+def _do_config_decode(basedir, data):
 	import getpass
 	key = getpass.getpass(f"Secret:")
-	
-	path = os.path.join(basedir, name)
-	content = secretsvault.vault_decode_file(key, path, None)
-
-	print(f"Loaded: {path}")
+	content = secretsvault.vault_decode_str(key, data)
 
 	ENCODER = secretsvault.CreateEncoder(json.loads(content), False)
 	if ENCODER == None:
@@ -185,9 +176,9 @@ def _do_main(args):
 	elif acc == "find":
 		_do_find(basedir, args.regex)
 	elif acc == "config-create":
-		_do_config_create(basedir, args.name)
+		_do_config_create(basedir)
 	elif acc == "config-decode":
-		_do_config_decode(basedir, args.name)
+		_do_config_decode(basedir, args.data)
 
 	os.chdir(basedir)
 
@@ -232,10 +223,9 @@ def main():
 	_vault_info.add_argument('url', nargs='?', default="", help='The vault url to query the info from')
 
 	_vault_config_create = subparsers.add_parser('config-create', description='Create vault config')
-	_vault_config_create.add_argument('name', help='The name of the encoded valut config file.')
 	_vault_config_create.set_defaults(action='config-create')
 	_vault_config_decode = subparsers.add_parser('config-decode', description='Create vault config')
-	_vault_config_decode.add_argument('name', help='The name of the encoded valut config file.')
+	_vault_config_decode.add_argument('data', help='The result of config-create')
 	_vault_config_decode.set_defaults(action='config-decode')
 	
 	args = parser.parse_args(user_arguments)
