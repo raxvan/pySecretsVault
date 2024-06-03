@@ -139,7 +139,7 @@ def _do_config_create(basedir, name):
 	ENCODER = secretsvault.CreateNewEncoder()
 	pn, pk = ENCODER.get_private_key()
 	path = os.path.join(basedir, name)
-	secretsvault.vault_write_encoded_file(key, pk, path)
+	secretsvault.vault_write_encoded_file(key, json.dumps({pn : pk}), path)
 
 	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
 	ENCODER.serialize(CONFIG_STORAGE)
@@ -149,15 +149,20 @@ def _do_config_create(basedir, name):
 def _do_config_decode(basedir, name):
 	import getpass
 	key = getpass.getpass(f"Secret:")
-	ENCODER = secretsvault.CreateNewEncoder()
-	pn, pk = ENCODER.get_private_key()
+	
 	path = os.path.join(basedir, name)
-	secretsvault.vault_write_encoded_file(key, pk, path)
+	content = secretsvault.vault_decode_file(key, path, None)
+
+	print(f"Loaded: {path}")
+
+	ENCODER = secretsvault.CreateEncoder(json.loads(content), False)
+	if ENCODER == None:
+		raise Exception(f"Failed to load {path}!")
 
 	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
 	ENCODER.serialize(CONFIG_STORAGE)
 
-	print(f"Created: {path}")
+	
 
 def _do_main(args):
 	basedir = os.getcwd()

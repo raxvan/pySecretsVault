@@ -8,7 +8,7 @@ fi
 cd $VAULT_INSTALL_DIR/vaultserver
 
 if [ -z "$VAULT_SERVER_MODE" ]; then
-    export VAULT_SERVER_MODE=revive
+    export VAULT_SERVER_MODE=live
 fi
 
 if [ -z "$VAULT_SERVER_SCALING" ]; then
@@ -25,6 +25,12 @@ fi
 
 if [ -z "$VAULT_STARTUP_TIME" ]; then
     export VAULT_STARTUP_TIME=2
+fi
+
+if [ "$VAULT_SERVER_MODE" != "debug" ]; then
+    echo "VAULT COMMAND:"
+    read VAULT_COMMAND
+    eval "$VAULT_COMMAND"
 fi
 
 python3 $VAULT_INSTALL_DIR/vaultserver/vaultconfig.py &
