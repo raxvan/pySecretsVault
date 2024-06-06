@@ -15,7 +15,6 @@ RUN pip3 install --upgrade pip && pip3 install \
 	shared-memory-dict
 
 ENV VAULT_INSTALL_DIR=/repo
-ENV VAULT_SERVER_SCALING=4
 
 ENV VAULT_HOST=0.0.0.0
 ENV VAULT_PORT=5000

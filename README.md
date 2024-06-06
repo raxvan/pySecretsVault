@@ -32,7 +32,6 @@ print(v["key"])
 - VAULT_PUBLIC_ACCESS=none/enable/subnet
 - VAULT_STARTUP_TIME=2 #in seconds
 
-- VAULT_SERVER_SCALING=4
 - VAULT_INSTALL_DIR
 - VAULT_URL=http://127.0.0.1:5000
 

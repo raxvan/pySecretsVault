@@ -11,10 +11,6 @@ if [ -z "$VAULT_SERVER_MODE" ]; then
     export VAULT_SERVER_MODE=live
 fi
 
-if [ -z "$VAULT_SERVER_SCALING" ]; then
-    export VAULT_SERVER_SCALING=4
-fi
-
 if [ -z "$VAULT_HOST" ]; then
     export VAULT_HOST=0.0.0.0
 fi
@@ -36,14 +32,8 @@ if [ "$VAULT_SERVER_MODE" = "debug" ]; then
     #flask --app vaultapp run
     python3 vaultapp.py
 else
-    echo "VAULT: Scaling $VAULT_SERVER_SCALING"
     gunicorn \
-        --workers $VAULT_SERVER_SCALING \
-        --bind $VAULT_HOST:$VAULT_PORT \
-        --log-level debug \
-        --log-file %VAULT_LOGS_DIR/.vault.log \
-        --error-logfile %VAULT_LOGS_DIR/.vault.error.log \
-        --access-logfile %VAULT_LOGS_DIR/.vault.access.log \
+        -c server_config.py \
         vaultapp:app
 fi
 
