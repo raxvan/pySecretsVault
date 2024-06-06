@@ -37,6 +37,10 @@ if [ "$VAULT_SERVER_MODE" = "debug" ]; then
     python3 vaultapp.py
 else
     echo "VAULT: Scaling $VAULT_SERVER_SCALING"
-    gunicorn -w $VAULT_SERVER_SCALING -b $VAULT_HOST:$VAULT_PORT vaultapp:app
+    gunicorn \
+        --workers $VAULT_SERVER_SCALING \
+        --bind $VAULT_HOST:$VAULT_PORT \
+        --error-logfile %VAULT_DATA_DIR/.vault.error.log \
+        vaultapp:app
 fi
 
