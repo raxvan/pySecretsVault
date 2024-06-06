@@ -5,13 +5,11 @@ import sys
 import json
 import secretsvault
 import subprocess
-import logging
 import netifaces as ni
 
 from flask import Flask, request, jsonify, Response
 from shared_memory_dict import SharedMemoryDict
 from ipaddress import ip_address, ip_network
-from logging.handlers import RotatingFileHandler
 
 MAX_REQUEST_SIZE = int(os.environ.get("VAULT_MAX_REQUEST_SIZE", str(1024 * 1024)))
 DATA_FOLDER = os.environ.get("VAULT_DATA_DIR", '/vault/data')
@@ -49,12 +47,6 @@ ALLOWED_NETWORK_SUBNET = get_allowed_network()
 
 app = Flask(__name__)
 
-LOGSDIR = os.environ.get('VAULT_LOGS_DIR','')
-if LOGSDIR != "":
-	os.makedirs(LOGSDIR, exist_ok = True)
-	handler = RotatingFileHandler(os.path.join(LOGSDIR,'flask.log'), maxBytes=10000, backupCount=1)
-	handler.setLevel(logging.INFO)
-	app.logger.addHandler(handler)
 ################################################################################################################
 
 def executeQuery(data):
