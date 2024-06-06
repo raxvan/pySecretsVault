@@ -40,7 +40,8 @@ else
     gunicorn \
         --workers $VAULT_SERVER_SCALING \
         --bind $VAULT_HOST:$VAULT_PORT \
-        --log-level info \
+        --log-level debug \
+        --log-file %VAULT_LOGS_DIR/.vault.log \
         --error-logfile %VAULT_LOGS_DIR/.vault.error.log \
         --access-logfile %VAULT_LOGS_DIR/.vault.access.log \
         vaultapp:app
