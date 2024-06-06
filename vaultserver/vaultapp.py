@@ -89,7 +89,7 @@ def executeSet(data):
 	index = 0
 	
 	for k,v in data.items():
-		DATA_STORAGE[str(k)] = ENCODER.encodeStr(str(v))
+		DATA_STORAGE[ks] = ENCODER.encodeStr(str(v))
 		index += 1
 
 	return index

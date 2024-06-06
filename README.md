@@ -27,6 +27,7 @@ print(v["key"])
 - VAULT_MAX_REQUEST_SIZE=1048576
 - VAULT_CONFIG_DIR/vault/config
 - VAULT_DATA_DIR=/vault/data
+- VAULT_LOGS_DIR=/vault/logs
 - VAULT_SERVER_MODE=none/debug/live
 - VAULT_PUBLIC_ACCESS=none/enable/subnet
 - VAULT_STARTUP_TIME=2 #in seconds
