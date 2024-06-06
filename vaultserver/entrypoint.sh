@@ -41,6 +41,7 @@ else
         --workers $VAULT_SERVER_SCALING \
         --bind $VAULT_HOST:$VAULT_PORT \
         --error-logfile %VAULT_DATA_DIR/.vault.error.log \
+        --access-logfile %VAULT_DATA_DIR/.vault.access.log \
         vaultapp:app
 fi
 
