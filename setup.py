@@ -13,7 +13,7 @@ setup(
     install_requires = [
         "cryptography",
         "requests",
-        "shared-memory-dict"
+        "shared-memory-dict",
     ],
     python_requires = '>=3.6',
     entry_points = {

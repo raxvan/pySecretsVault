@@ -153,7 +153,11 @@ def _do_config_decode(basedir, data):
 	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
 	ENCODER.serialize(CONFIG_STORAGE)
 
-	
+def _do_config_create_unsafe(basedir):
+	ENCODER = secretsvault.CreateNewEncoder()
+
+	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
+	ENCODER.serialize(CONFIG_STORAGE)
 
 def _do_main(args):
 	basedir = os.getcwd()
@@ -179,7 +183,8 @@ def _do_main(args):
 		_do_config_create(basedir)
 	elif acc == "config-decode":
 		_do_config_decode(basedir, args.data)
-
+	elif acc == "config-create-unsafe":
+		_do_config_create_unsafe(basedir)
 	os.chdir(basedir)
 
 def main():
@@ -227,6 +232,8 @@ def main():
 	_vault_config_decode = subparsers.add_parser('config-decode', description='Create vault config')
 	_vault_config_decode.add_argument('data', help='The result of config-create')
 	_vault_config_decode.set_defaults(action='config-decode')
+	_vault_config_create_unsafe = subparsers.add_parser('config-create-unsafe', description='Create vault keys directly')
+	_vault_config_create_unsafe.set_defaults(action='config-create-unsafe')
 	
 	args = parser.parse_args(user_arguments)
 
