@@ -20,6 +20,17 @@ class ApiMap():
 		self.apiInfo = f"{url}/info"
 		self.url = url
 
+def GetRemoteInfoImpl(url, timeout):
+	try:
+		apiInfo = f"{url}/info"
+		response = requests.get(apiInfo, timeout=timeout)
+		if response.status_code != 200:
+			raise Exception(f"Request {apiInfo} failed with code {response.status_code}:\n{response.text}");
+		content = response.text
+		return json.loads(content)
+	except Exception as e:
+		raise Exception(f"Request {apiInfo} failed!\n{str(e)}")
+
 class RemoteVault(ApiMap):
 	#handler for flask_server.py implementation
 
@@ -57,14 +68,7 @@ class RemoteVault(ApiMap):
 		self.vaultEncoder = CreateEncoder(desc, False)
 
 	def _info(self):
-		try:
-			response = requests.get(self.apiInfo, timeout=self.timeout)
-			if response.status_code != 200:
-				raise Exception(f"Request {self.apiInfo} failed with code {response.status_code}:\n{response.text}");
-			content = response.text
-			return json.loads(content)
-		except Exception as e:
-			raise Exception(f"Request {self.apiInfo} failed!\n{str(e)}")
+		return GetRemoteInfoImpl(self.url, self.timeout)
 
 	def ready(self):
 		return self.vaultEncoder != None

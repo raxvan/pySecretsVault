@@ -128,8 +128,10 @@ def _do_cat(basedir, path):
 	print(content)
 
 def _do_info(basedir, url):
-	vault = open_vault(basedir)
-	inf = vault.info()
+	if url == None or url == "":
+		url = os.environ["VAULT_URL"]
+	
+	inf = secretsvault.GetRemoteInfo(url, 3)
 	content = json.dumps(inf, indent = 2)
 	print(content)
 

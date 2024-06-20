@@ -26,6 +26,10 @@ def CreateVault(desc):
 	from .vault_client import CreateVaultImpl
 	return CreateVaultImpl(desc)
 
+def GetRemoteInfo(url, timeout):
+	from .vault_client import GetRemoteInfoImpl
+	return GetRemoteInfoImpl(url, timeout)
+
 def OpenVault():
 	url = os.environ.get("VAULT_URL", None)
 	if url == None:
@@ -43,6 +47,8 @@ def OpenVault():
 			return CreateVault(items)
 
 	return v
+
+
 
 def WaitForPublicKey(data):
 	from .vault_encoder import ConfigWaitForPublicKey
