@@ -11,7 +11,7 @@ CONFIG_FOLDER = os.environ.get("VAULT_CONFIG_DIR", '/vault/config')
 CONFIG_STORAGE = secretsvault.CreateFileStorage(CONFIG_FOLDER, False)
 ENCODER = secretsvault.CreateEncoder(CONFIG_STORAGE, False) #this can never be True
 if ENCODER == None:
-	raise Exception("Failed to create encoder!")
+	raise Exception(f"Failed to create encoder with folder {CONFIG_FOLDER}!")
 CONFIG_STORAGE.clear()
 config = SharedMemoryDict(name=f'{NAME}Config', size=2048)
 pn, pk = ENCODER.get_private_key()

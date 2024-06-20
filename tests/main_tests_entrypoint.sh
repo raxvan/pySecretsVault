@@ -21,9 +21,9 @@ echo "Starting server (idle: 5 sec)..."
 export VAULT_SERVER_MODE=debug
 export VAULT_STARTUP_TIME=2
 
-cd /repo/tests/VaultTestVolume/config
-
 vault config-create
+
+cd /repo/tests/VaultTestVolume/config
 
 echo "vault config-decode ..."
 read DECODE_COMMAND

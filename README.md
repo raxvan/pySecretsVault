@@ -37,7 +37,13 @@ print(v["key"])
 
 # Server requirements:
 
-gunicorn
-flask
-netifaces
-shared-memory-dict
+- gunicorn
+- flask
+- netifaces
+- shared-memory-dict
+
+Starting the server locally (first install with pip):
+```
+vault config-create-unsafe
+/bin/sh pySecretsVault/vaultserver/entrypoint.sh > vault/server.log 2>&1 &
+```

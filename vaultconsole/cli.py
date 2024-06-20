@@ -71,6 +71,7 @@ def _get_file_password(vault, filename):
 		import getpass
 		key = getpass.getpass(f"[{filename}] TOKEN:")
 		if key == "":
+			print("[generating key]")
 			import secrets
 			import string
 			characters = string.ascii_letters + string.digits + string.punctuation
@@ -114,7 +115,6 @@ def _do_load(basedir, path):
 
 	vault.update(content)
 
-
 def _do_cat(basedir, path):
 	file = _locate_file(basedir, path)
 
@@ -148,15 +148,24 @@ def _do_config_decode(basedir, data):
 
 	ENCODER = secretsvault.CreateEncoder(json.loads(content), False)
 	if ENCODER == None:
-		raise Exception(f"Failed to load {path}!")
+		raise Exception(f"Failed to load encoder!")
+
+	path = os.environ.get("VAULT_CONFIG_DIR", basedir)
+	if path == "":
+		path = basedir
+	os.makedirs(path, exist_ok = True)
 
 	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
 	ENCODER.serialize(CONFIG_STORAGE)
 
-def _do_config_create_unsafe(basedir):
+def _do_config_create_new(basedir, path):
 	ENCODER = secretsvault.CreateNewEncoder()
-
-	CONFIG_STORAGE = secretsvault.CreateFileStorage(basedir, False)
+	if path == None or path == "":
+		path = os.environ.get("VAULT_CONFIG_DIR", basedir)
+	if path == "":
+		path = basedir
+	os.makedirs(path, exist_ok = True)
+	CONFIG_STORAGE = secretsvault.CreateFileStorage(path, False)
 	ENCODER.serialize(CONFIG_STORAGE)
 
 def _do_main(args):
@@ -183,8 +192,8 @@ def _do_main(args):
 		_do_config_create(basedir)
 	elif acc == "config-decode":
 		_do_config_decode(basedir, args.data)
-	elif acc == "config-create-unsafe":
-		_do_config_create_unsafe(basedir)
+	elif acc == "config-create-new":
+		_do_config_create_new(basedir, args.path)
 	os.chdir(basedir)
 
 def main():
@@ -232,8 +241,10 @@ def main():
 	_vault_config_decode = subparsers.add_parser('config-decode', description='Create vault config')
 	_vault_config_decode.add_argument('data', help='The result of config-create')
 	_vault_config_decode.set_defaults(action='config-decode')
-	_vault_config_create_unsafe = subparsers.add_parser('config-create-unsafe', description='Create vault keys directly')
-	_vault_config_create_unsafe.set_defaults(action='config-create-unsafe')
+
+	_vault_config_create_new = subparsers.add_parser('config-create-new', description='Create vault keys directly!')
+	_vault_config_create_new.set_defaults(action='config-create-new')
+	_vault_config_create_new.add_argument('path', nargs='?', default="", help='path to config folder, Defaults to VAULT_CONFIG_DIR')
 	
 	args = parser.parse_args(user_arguments)
 
